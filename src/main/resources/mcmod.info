@@ -1,0 +1,16 @@
+[
+{
+  "modid": "mp",
+  "name": "More Pings Mod",
+  "description": "Plays a ding sound and highlights your name even when spelled incorrectly in chat",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Scribee"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

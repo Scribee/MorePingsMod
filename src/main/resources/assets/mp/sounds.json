@@ -1,0 +1,9 @@
+{
+    "ding": {
+        "sounds": [
+            {
+                "name": "mp:ding"
+            }
+        ]
+    }
+ }
