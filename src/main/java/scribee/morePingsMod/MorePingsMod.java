@@ -53,11 +53,11 @@ public class MorePingsMod {
 		String text = event.message.getUnformattedText().toLowerCase(); //used for checking actual message content
 		int startInd = message.indexOf(": "); //index of the beginning of the message content in the formatted string, this should always be the first colon after the player's name
 		//make sure there is a colon in the message
-		if (startInd >= -1) {
+		if (startInd != -1) {
 			//make the content of the formatted message lowercase as a 'fix' for a bug with splitting the message
 			message = message.substring(0, startInd) + message.substring(startInd, message.length()).toLowerCase();
-			for (int i = 0; i < keywords.size(); i++) { //loop through keywords and check if any appear in the content part of the
-				//message (don't want to be pinged every time Di*scri*minate chats), also make sure that the message isn't a pm
+			for (int i = 0; i < keywords.size(); i++) { //loop through keywords and check if any appear in the content part of the message (don't want to be pinged every time Di*scri*minate chats),
+				//also make sure that the message isn't a pm
 				if (text.substring(text.indexOf(": "), text.length()).contains(keywords.get(i).toString()) && !(text.substring(0, 2).equals("to") || text.substring(0, 4).equals("from"))) {
 					String[] splitMessage = message.split(keywords.get(i).toString()); //removes keyword from message and separates into 2 strings
 					//splitMessage.length will only be 1 if there was nothing to the right of the keyword, and
