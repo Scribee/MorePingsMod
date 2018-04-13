@@ -40,7 +40,7 @@ public class MorePingsMod {
 		keywords.add("scri");
 		keywords.add("scrribee");
 		keywords.add("halper");
-		//keywords.add(" helper"); //caused issues and i'm too lazy to fix now
+		keywords.add(" helper");
 		keywords.add("helpr");
 	}
 
@@ -56,9 +56,9 @@ public class MorePingsMod {
 		if (startInd != -1) {
 			//make the content of the formatted message lowercase as a 'fix' for a bug with splitting the message
 			message = message.substring(0, startInd) + message.substring(startInd, message.length()).toLowerCase();
-			for (int i = 0; i < keywords.size(); i++) { //loop through keywords and check if any appear in the message
-				//also make sure the message wasn't sent by me, and that the message isn't a pm
-				if (text.contains(keywords.get(i).toString()) && !(text.substring(0, startInd).contains("scribee") || text.substring(0, 2).equals("to") || text.substring(0, 4).equals("from"))) {
+			for (int i = 0; i < keywords.size(); i++) { //loop through keywords and check if any appear in the content part of the
+				//message (don't want to be pinged every time Discriminate chats), also make sure that the message isn't a pm
+				if (text.substring(startInd, text.length()).contains(keywords.get(i).toString()) && !(text.substring(0, 2).equals("to") || text.substring(0, 4).equals("from"))) {
 					String[] splitMessage = message.split(keywords.get(i).toString()); //removes keyword from message and separates into 2 strings
 					//splitMessage.length will only be 1 if there was nothing to the right of the keyword, and
 					//if the name is at the end of the message, we don't need to concatenate splitMessage[1] or the original message color
