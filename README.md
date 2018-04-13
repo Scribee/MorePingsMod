@@ -3,3 +3,5 @@ Pings you when set keywords show up in chat, by making the word yellow and playi
 
 ## More Information
 Only intended for use on Hypixel - may malfunction with other servers' chat styles
+
+Keywords (hopefully) soon to be customizable via config
