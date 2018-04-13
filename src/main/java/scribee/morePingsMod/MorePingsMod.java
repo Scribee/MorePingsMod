@@ -50,15 +50,16 @@ public class MorePingsMod {
 	@SubscribeEvent
 	public void onChatEvent(ClientChatReceivedEvent event) {
 		String message = event.message.getFormattedText(); //used for keeping the formatting for the final message
-		String text = event.message.getUnformattedText().toLowerCase(); //used for checking actual message text
-		
-		for (int i = 0; i < keywords.size(); i++) { //loop through keywords and check if any appear in the message
-			//also make sure the message doesn't contain my actual name, and that the message isn't a pm
-			if (text.contains(keywords.get(i).toString()) && !(text.contains("scribee") || text.substring(0, 2).equals("to") || text.substring(0, 4).equals("from"))) {
-				String[] splitMessage = message.split(keywords.get(i).toString()); //removes keyword from message and separates into 2 strings
-				int startInd = message.indexOf(": "); //index of the beginning of the message content, this should always be the first colon after the player's name
-				//make sure there is a colon in the message
-				if (startInd != -1) {
+		String text = event.message.getUnformattedText().toLowerCase(); //used for checking actual message content
+		int startInd = message.indexOf(": "); //index of the beginning of the message content, this should always be the first colon after the player's name
+		//make sure there is a colon in the message
+		if (startInd != -1) {
+			//make the content of the formatted message lowercase as a 'fix' for a bug with splitting the message
+			message = message.substring(0, startInd) + message.substring(startInd, message.length()).toLowerCase();
+			for (int i = 0; i < keywords.size(); i++) { //loop through keywords and check if any appear in the message
+				//also make sure the message wasn't sent by me, and that the message isn't a pm
+				if (text.contains(keywords.get(i).toString()) && !(text.substring(0, startInd).contains("scribee") || text.substring(0, 2).equals("to") || text.substring(0, 4).equals("from"))) {
+					String[] splitMessage = message.split(keywords.get(i).toString()); //removes keyword from message and separates into 2 strings
 					//splitMessage.length will only be 1 if there was nothing to the right of the keyword, and
 					//if the name is at the end of the message, we don't need to concatenate splitMessage[1] or the original message color
 					if (splitMessage.length == 1) {
@@ -78,8 +79,8 @@ public class MorePingsMod {
 						event.setCanceled(true); //keeps original message from sending
 						Minecraft.getMinecraft().getSoundHandler().playSound(ding);
 					}
-				}
 				break; //no need to keep searching for keywords in this message
+				}
 			}
 		}
 	}
