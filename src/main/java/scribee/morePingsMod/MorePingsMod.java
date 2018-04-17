@@ -1,7 +1,5 @@
 package scribee.morePingsMod;
 
-import java.util.ArrayList;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.util.ChatComponentText;
@@ -21,77 +19,53 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @Mod(modid = Reference.MODID, name = Reference.MOD_NAME, version = Reference.VERSION, guiFactory = Reference.GUI_FACTORY)
 public class MorePingsMod {
 	
-	public static Configuration config;
-	public static boolean pingsEnabled;
-	
-	private ArrayList keywords = new ArrayList();
+	private String[] keywordList;
 	private ResourceLocation loc = new ResourceLocation("mp:ding");
 	private PositionedSoundRecord ding = PositionedSoundRecord.create(loc);
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
-		config = new Configuration(event.getSuggestedConfigurationFile());
-		syncConfig();
+		ConfigHandler.init(event);
+		ConfigHandler.syncConfig();
 	}
 
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
 		MinecraftForge.EVENT_BUS.register(this);
-		
-		//temporary
-		keywords.add("scrribee");
-		keywords.add("scribbee");
-		keywords.add("scribbe");
-		keywords.add("sccribee");
-		keywords.add("scrivee");
-		keywords.add("scribee");
-		keywords.add("scibee");
-		keywords.add("scribe");
-		keywords.add("scrib");
-		keywords.add("scri");
-		keywords.add("halper");
-		keywords.add("helper");
-		keywords.add("helpr");
 	}
-
-	@EventHandler
-	public void postInit(FMLPostInitializationEvent event) {}
 	
 	 @SubscribeEvent
 	 public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent eventArgs) {
 		 if (eventArgs.modID.equals(Reference.MODID)) {
-			 syncConfig();
+			 ConfigHandler.syncConfig();
+			 if (!ConfigHandler.keywords.equals("keyword1,keyword2")) { //make sure its not the default value, dont want to be pinged for "keyword1" in case it shows up
+				 keywordList = ConfigHandler.keywords.split(",");
+			 }
 		 }
 	 }
 
-	public static void syncConfig() {
-		System.out.println("syncing config");
-	    pingsEnabled = config.getBoolean("pingsEnabled", Configuration.CATEGORY_GENERAL, true, "Whether pings are enabled");
-	    config.save();
-	}
-	
 	@SubscribeEvent
 	public void onChatEvent(ClientChatReceivedEvent event) {
-		if (MorePingsMod.pingsEnabled) {
+		if (ConfigHandler.pingsEnabled) {
 			String message = event.message.getFormattedText(); //used for keeping the formatting for the final message
 			String text = event.message.getUnformattedText().toLowerCase(); //used for checking actual message content
 			int startInd = message.indexOf(": "); //index of the beginning of the message content in the formatted string, this should always be the first colon after the player's name
 			//make sure there is a colon in the message
 			if (startInd != -1) {
-				for (int i = 0; i < keywords.size(); i++) { //loop through keywords and check if any appear in the content part of the message (don't want to be pinged every time Di*scri*minate chats),
+				for (int i = 0; i < keywordList.length; i++) { //loop through keywords and check if any appear in the content part of the message (don't want to be pinged every time Di*scri*minate chats),
 					//also make sure that the message isn't a pm
-					if (text.substring(text.indexOf(": "), text.length()).contains(keywords.get(i).toString()) && !(text.substring(0, 2).equals("to") || text.substring(0, 4).equals("from"))) {
-						int keywordInd = message.toLowerCase().indexOf(keywords.get(i).toString());
+					if (text.substring(text.indexOf(": "), text.length()).contains(keywordList[i].toString()) && !(text.substring(0, 2).equals("to") || text.substring(0, 4).equals("from"))) {
+						int keywordInd = message.toLowerCase().indexOf(keywordList[i].toString());
 					
 						//check if player is a non, as the color code 7 is used before the colon to make the chat gray (reset rest of message to gray)
 						if (message.substring(startInd - 1, startInd).equals("7")) { 
-							Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(message.substring(0, keywordInd) + EnumChatFormatting.YELLOW + message.substring(keywordInd, keywordInd + keywords.get(i).toString().length()) + EnumChatFormatting.GRAY + message.substring(keywordInd + keywords.get(i).toString().length(), message.length()))); //sends new, formatted message
+							Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(message.substring(0, keywordInd) + EnumChatFormatting.YELLOW + message.substring(keywordInd, keywordInd + keywordList[i].toString().length()) + EnumChatFormatting.GRAY + message.substring(keywordInd + keywordList[i].toString().length(), message.length()))); //sends new, formatted message
 							event.setCanceled(true); //keeps original message from sending
 							Minecraft.getMinecraft().getSoundHandler().playSound(ding);
 						}
 						//check if player is a donator, as the color code f is used before the colon to make the chat white (reset rest of message to white)
 						else if (message.substring(startInd - 1, startInd).equals("f")) { 
-							Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(message.substring(0, keywordInd) + EnumChatFormatting.YELLOW + message.substring(keywordInd, keywordInd + keywords.get(i).toString().length()) + EnumChatFormatting.WHITE + message.substring(keywordInd + keywords.get(i).toString().length(), message.length()))); //sends new, formatted message
+							Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(message.substring(0, keywordInd) + EnumChatFormatting.YELLOW + message.substring(keywordInd, keywordInd + keywordList[i].toString().length()) + EnumChatFormatting.WHITE + message.substring(keywordInd + keywordList[i].toString().length(), message.length()))); //sends new, formatted message
 							event.setCanceled(true); //keeps original message from sending
 							Minecraft.getMinecraft().getSoundHandler().playSound(ding);
 						}
