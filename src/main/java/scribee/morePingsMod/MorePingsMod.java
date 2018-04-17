@@ -39,7 +39,10 @@ public class MorePingsMod {
 		 if (eventArgs.modID.equals(Reference.MODID)) {
 			 ConfigHandler.syncConfig();
 			 if (!ConfigHandler.keywords.equals("keyword1,keyword2")) { //make sure its not the default value, dont want to be pinged for "keyword1" in case it shows up
-				 keywordList = ConfigHandler.keywords.split(",");
+				 keywordList = new String[ConfigHandler.keywords.split(",").length];
+				 for (int i = 0; i < ConfigHandler.keywords.split(",").length; i++) {
+					 keywordList[i] = ConfigHandler.keywords.split(",")[i];
+				 }
 			 }
 		 }
 	 }
