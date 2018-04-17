@@ -8,10 +8,10 @@ import net.minecraftforge.fml.client.config.GuiConfig;
 public class GuiMorePingsConfig extends GuiConfig {
 	public GuiMorePingsConfig(GuiScreen parentScreen) {
 	    super(parentScreen,
-	    	new ConfigElement(MorePingsMod.config.getCategory(Configuration.CATEGORY_GENERAL)).getChildElements(),
+	    	new ConfigElement(ConfigHandler.config.getCategory(Configuration.CATEGORY_GENERAL)).getChildElements(),
 	    	Reference.MODID,
 	    	false,
 	    	false,
-	    	GuiConfig.getAbridgedConfigPath(MorePingsMod.config.toString()));
+	    	GuiConfig.getAbridgedConfigPath(ConfigHandler.config.toString()));
 	}
 }
