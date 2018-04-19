@@ -1,4 +1,4 @@
-package scribee.morePingsMod;
+package scribee.morePingsMod.gui;
 
 import java.util.Set;
 
@@ -15,7 +15,7 @@ public class MorePingsGuiFactory implements IModGuiFactory {
 
 	@Override
 	public Class<? extends GuiScreen> mainConfigGuiClass() {
-		return GuiMorePingsConfig.class;
+		return MorePingsConfigGui.class;
 	}
 
 	@Override
