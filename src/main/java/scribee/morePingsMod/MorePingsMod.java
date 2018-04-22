@@ -36,6 +36,8 @@ public class MorePingsMod {
 	public void preInit(FMLPreInitializationEvent event) {
 		ConfigHandler.init(event);
 		ConfigHandler.syncConfig();
+		
+		updateKeywords();
 	}
 
 	@EventHandler
@@ -48,13 +50,7 @@ public class MorePingsMod {
 		 if (eventArgs.modID.equals(Reference.MODID)) {
 			 ConfigHandler.syncConfig();
 			 
-			 if (!ConfigHandler.keywords.equals("keyword1,keyword2")) { // make sure its not the default value
-				 keywordList = new String[ConfigHandler.keywords.split(",").length];
-				 
-				 for (int i = 0; i < ConfigHandler.keywords.split(",").length; i++) {
-					 keywordList[i] = ConfigHandler.keywords.split(",")[i];
-				 }
-			 }
+			 updateKeywords();
 		 }
 	 }
 
@@ -150,5 +146,15 @@ public class MorePingsMod {
     	Minecraft.getMinecraft().thePlayer.addChatMessage(message);
     	
     	scheduled = false;
+    }
+    
+    public static void updateKeywords() {
+    	if (!ConfigHandler.keywords.equals("keyword1,keyword2")) { // make sure its not the default value
+    		keywordList = new String[ConfigHandler.keywords.split(",").length];
+
+    		for (int i = 0; i < ConfigHandler.keywords.split(",").length; i++) {
+    			keywordList[i] = ConfigHandler.keywords.split(",")[i];
+    		}
+    	}
     }
 }
