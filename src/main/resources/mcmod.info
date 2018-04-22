@@ -2,7 +2,7 @@
 {
   "modid": "mp",
   "name": "More Pings Mod",
-  "description": "Plays a ding sound and highlights your name even when spelled incorrectly in chat",
+  "description": "Highlights keywords in chat. Customizable via config",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
