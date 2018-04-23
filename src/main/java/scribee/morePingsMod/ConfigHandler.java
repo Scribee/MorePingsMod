@@ -1,8 +1,6 @@
 package scribee.morePingsMod;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
@@ -12,7 +10,8 @@ public class ConfigHandler {
 	
 	public static boolean sendStatusMessages;
 	public static boolean disableMod;
-	public static String keywords;
+	public static boolean playDing;
+	public static String[] keywords;
 	
 	private static boolean disabledLast = false;
 	
@@ -27,27 +26,32 @@ public class ConfigHandler {
 	    		Configuration.CATEGORY_GENERAL,
 	    		false,
 	    		"Whether the mod is disabled or not");
-	    keywords = config.getString("Keywords", 
+	    keywords = config.getStringList("Keywords", 
 	    		Configuration.CATEGORY_GENERAL,
-	    		"keyword1,keyword2",
+	    		new String[] { "" },
 	    		"List of keywords");
-	    sendStatusMessages = config.getBoolean("Mod status messages in chat",
+	    sendStatusMessages = config.getBoolean("Send mod status in chat",
 	    		Configuration.CATEGORY_GENERAL,
 	    		true,
 	    		"Whether to send a message in chat when the mod is disabled or enabled");
+	    playDing = config.getBoolean("Play ding sound for keywords", 
+	    		Configuration.CATEGORY_GENERAL, 
+	    		true, 
+	    		"Whether to play a ding sound when a keyword is found");
 	    
 	    config.save();
 	    
 	    if (disableMod && !disabledLast) {
-	    	if (Minecraft.getMinecraft().thePlayer != null) { // will be null if config is changed from title screen
+	    	if (Minecraft.getMinecraft().thePlayer != null && ConfigHandler.sendStatusMessages) { // will be null if config is changed from title screen
 	    		MorePingsMod.sendDisabledMessage("by config");
 	    	}
     		
 	    	disabledLast =  true;
 	    }
 	    else if (!disableMod && disabledLast) {
-	    	if (Minecraft.getMinecraft().thePlayer != null) { // will be null if config is changed from title screen
+	    	if (Minecraft.getMinecraft().thePlayer != null && ConfigHandler.sendStatusMessages) { // will be null if config is changed from title screen
 	    		MorePingsMod.sendEnabledMessage("by config");
+	    		MorePingsMod.checkServer(); // if re-enabled after joining a server, onHypixel hasn't been updated, so update it now
 	    	}
 	    	
 	    	disabledLast = false;
