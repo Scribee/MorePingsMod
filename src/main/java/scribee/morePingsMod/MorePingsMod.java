@@ -1,5 +1,9 @@
 package scribee.morePingsMod;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.util.ChatComponentText;
@@ -22,32 +26,34 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 @Mod(modid = Reference.MODID, name = Reference.MOD_NAME, version = Reference.VERSION, guiFactory = Reference.GUI_FACTORY)
 public class MorePingsMod {
 	
-	// used to make sure the disable/enable message sends once, instead of each time WorldEvent.Load is fired
+	// used to make sure the disable/enable message sends only the first time WorldEvent.Load is fired
 	private static boolean scheduled = false;
 	private static boolean onHypixel = false;
 	private static String lastIP = "none";
 	
-	private static String[] keywordList;
+	private static List<String> keywordList = new ArrayList<String>();
 	
-	private static ResourceLocation loc = new ResourceLocation("mp:ding");
-	private static PositionedSoundRecord ding = PositionedSoundRecord.create(loc);
+	private static ResourceLocation location = new ResourceLocation("mp:ding");
+	private static PositionedSoundRecord ding = PositionedSoundRecord.create(location);
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
-		ConfigHandler.init(event);
-		ConfigHandler.syncConfig();
+		event.getSuggestedConfigurationFile().delete();
 		
-		updateKeywords();
+		ConfigHandler.init(event);
+		ConfigHandler.syncConfig();		
 	}
 
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
 		MinecraftForge.EVENT_BUS.register(this);
+		
+		updateKeywords();
 	}
 	
 	 @SubscribeEvent
-	 public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent eventArgs) {
-		 if (eventArgs.modID.equals(Reference.MODID)) {
+	 public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
+		 if (event.modID.equals(Reference.MODID)) {
 			 ConfigHandler.syncConfig();
 			 
 			 updateKeywords();
@@ -76,7 +82,9 @@ public class MorePingsMod {
 									 EnumChatFormatting.GRAY + message.substring(keywordInd + keyword.toString().length(), message.length())));
 							 event.setCanceled(true);
 							 
-							 Minecraft.getMinecraft().getSoundHandler().playSound(ding);
+							 if (ConfigHandler.playDing) {
+								 Minecraft.getMinecraft().getSoundHandler().playSound(ding);
+							 }
 						 }
 						 // check if player is a donator
 						 else if (message.substring(startInd - 1, startInd).equals("f")) { 
@@ -85,7 +93,9 @@ public class MorePingsMod {
 									 EnumChatFormatting.WHITE + message.substring(keywordInd + keyword.toString().length(), message.length())));
 							 event.setCanceled(true);
 							 
-							 Minecraft.getMinecraft().getSoundHandler().playSound(ding);
+							 if (ConfigHandler.playDing) {
+								 Minecraft.getMinecraft().getSoundHandler().playSound(ding);
+							 }
 						 }
 						 break;
 					 }
@@ -102,29 +112,7 @@ public class MorePingsMod {
     @SubscribeEvent
     public void onWorldJoinEvent(WorldEvent.Load event) {
     	if (!ConfigHandler.disableMod) {
-    		if (!Minecraft.getMinecraft().isSingleplayer()) {
-    			if (FMLClientHandler.instance().getClient().getCurrentServerData().serverIP.contains(".hypixel.net")) {
-    				onHypixel = true;
-    			}
-
-    			// on hypixel, messages enabled, and didn't last join hypixel
-    			if (!scheduled && onHypixel && ConfigHandler.sendStatusMessages && !lastIP.contains(".hypixel.net")) {
-    				new ScheduledCode(() -> sendEnabledMessage("on hypixel"), 120);
-    				scheduled = true;
-    			}
-    			// not on hypixel, messages enabled, and not the same server as last joined
-    			else if (!scheduled && ConfigHandler.sendStatusMessages && !lastIP.equals(FMLClientHandler.instance().getClient().getCurrentServerData().serverIP)) {
-    				new ScheduledCode(() -> sendDisabledMessage("not on hypixel"), 120);
-    				scheduled = true;
-    			}
-    			
-    			lastIP = FMLClientHandler.instance().getClient().getCurrentServerData().serverIP;
-    		}
-    		else if (ConfigHandler.sendStatusMessages && !scheduled) {
-    			new ScheduledCode(() -> sendDisabledMessage("singleplayer mode"), 120);
-    			
-    			scheduled = true;
-    		}
+    		checkServer();
     	}
     }
     
@@ -132,7 +120,8 @@ public class MorePingsMod {
     	IChatComponent message = new ChatComponentText(
     			EnumChatFormatting.WHITE + "[More Pings] " + 
     			EnumChatFormatting.RED + "Mod Disabled " + 
-    			EnumChatFormatting.WHITE + "(" + reason + ")");
+    			EnumChatFormatting.WHITE + "(" + reason + ")"
+    		);
     	Minecraft.getMinecraft().thePlayer.addChatMessage(message);
     	
     	scheduled = false;
@@ -142,19 +131,48 @@ public class MorePingsMod {
     	IChatComponent message = new ChatComponentText(
     			EnumChatFormatting.WHITE + "[More Pings] " + 
     			EnumChatFormatting.GREEN + "Re-enabled " + 
-    			EnumChatFormatting.WHITE + "(" + reason + ")");
+    			EnumChatFormatting.WHITE + "(" + reason + ")"
+    		);
     	Minecraft.getMinecraft().thePlayer.addChatMessage(message);
     	
     	scheduled = false;
     }
     
     public static void updateKeywords() {
-    	if (!ConfigHandler.keywords.equals("keyword1,keyword2")) { // make sure its not the default value
-    		keywordList = new String[ConfigHandler.keywords.split(",").length];
-
-    		for (int i = 0; i < ConfigHandler.keywords.split(",").length; i++) {
-    			keywordList[i] = ConfigHandler.keywords.split(",")[i];
-    		}
+    	if (!keywordList.isEmpty()) {
+    		keywordList.clear();
     	}
+    	for (String keyword : ConfigHandler.keywords) {
+    		keywordList.add(keyword);
+    	}
+    	System.out.println("Unsorted: " + keywordList);
+    	Collections.sort(keywordList, new LengthComparator());
+    	System.out.println("Sorted: " + keywordList);
+    }
+    
+    public static void checkServer() {
+    	if (!Minecraft.getMinecraft().isSingleplayer()) {
+			if (FMLClientHandler.instance().getClient().getCurrentServerData().serverIP.contains(".hypixel.net")) {
+				onHypixel = true;
+			}
+
+			// on hypixel, messages enabled, and didn't last join hypixel
+			if (!scheduled && onHypixel && ConfigHandler.sendStatusMessages && !lastIP.contains(".hypixel.net")) {
+				new ScheduledCode(() -> sendEnabledMessage("on hypixel"), 120);
+				scheduled = true;
+			}
+			// not on hypixel, messages enabled, and not the same server as last joined
+			else if (!scheduled && ConfigHandler.sendStatusMessages && !lastIP.equals(FMLClientHandler.instance().getClient().getCurrentServerData().serverIP)) {
+				new ScheduledCode(() -> sendDisabledMessage("not on hypixel"), 120);
+				scheduled = true;
+			}
+			
+			lastIP = FMLClientHandler.instance().getClient().getCurrentServerData().serverIP;
+		}
+		else if (ConfigHandler.sendStatusMessages && !scheduled) {
+			new ScheduledCode(() -> sendDisabledMessage("singleplayer mode"), 120);
+			
+			scheduled = true;
+		}
     }
 }
