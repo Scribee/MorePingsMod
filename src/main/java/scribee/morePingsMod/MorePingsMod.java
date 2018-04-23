@@ -38,7 +38,8 @@ public class MorePingsMod {
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
-		event.getSuggestedConfigurationFile().delete();
+		// used when testing
+		//event.getSuggestedConfigurationFile().delete();
 		
 		ConfigHandler.init(event);
 		ConfigHandler.syncConfig();		
