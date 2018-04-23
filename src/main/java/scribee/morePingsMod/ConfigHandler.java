@@ -11,6 +11,9 @@ public class ConfigHandler {
 	public static boolean sendStatusMessages;
 	public static boolean disableMod;
 	public static boolean playDing;
+	public static boolean partyChat;
+	public static boolean guildChat;
+	public static boolean privateChat;
 	public static String[] keywords;
 	
 	private static boolean disabledLast = false;
@@ -38,6 +41,19 @@ public class ConfigHandler {
 	    		Configuration.CATEGORY_GENERAL, 
 	    		true, 
 	    		"Whether to play a ding sound when a keyword is found");
+	    
+	    partyChat = config.getBoolean("Ping for party chat", 
+	    		Configuration.CATEGORY_GENERAL, 
+	    		true, 
+	    		"Whether to ping for keywords in party chat");
+	    guildChat = config.getBoolean("Ping for guild chat", 
+	    		Configuration.CATEGORY_GENERAL, 
+	    		true, 
+	    		"Whether to ping for keywords in guild chat");
+	    privateChat = config.getBoolean("Ping for private messages", 
+	    		Configuration.CATEGORY_GENERAL, 
+	    		false, 
+	    		"Whether to ping for keywords in pms");
 	    
 	    config.save();
 	    

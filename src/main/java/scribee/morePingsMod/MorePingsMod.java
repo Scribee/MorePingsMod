@@ -38,7 +38,7 @@ public class MorePingsMod {
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
-		// used when testing
+		// used when testing to reset config each time
 		//event.getSuggestedConfigurationFile().delete();
 		
 		ConfigHandler.init(event);
@@ -63,6 +63,8 @@ public class MorePingsMod {
 
 	 @SubscribeEvent(priority = EventPriority.LOW)
 	 public void onChatEvent(ClientChatReceivedEvent event) {
+		 // used to allow testing on singleplayer
+		 //onHypixel = true;
 		 if (!ConfigHandler.disableMod && onHypixel) {
 			 
 			 String message = event.message.getFormattedText(); // used for keeping the formatting for the final message
@@ -73,16 +75,16 @@ public class MorePingsMod {
 			 if (startInd != -1) {
 				 for (String keyword : keywordList) { 
 					 // check if any keywords appear in the content part of the message (don't want to be pinged every time Di-scri-minate chats)
-					 // also make sure that the message isn't a pm
-					 if (text.substring(text.indexOf(": "), text.length()).contains(keyword.toString()) && !(text.substring(0, 2).equals("to") || text.substring(0, 4).equals("from"))) {						 
-						 int keywordInd = message.toLowerCase().indexOf(keyword.toString());
+					 // also make sure that the message isn't in a pm/party chat/guild chat unless its enabled by the config
+					 if (text.substring(text.indexOf(": "), text.length()).contains(keyword) && (!text.substring(0, 5).equals("from ") || (ConfigHandler.privateChat && (text.substring(0, 5).equals("from ")))) && (!text.substring(0, 6).equals("party>") || (ConfigHandler.partyChat && (text.substring(0, 6).equals("party>")))) && (!text.substring(0, 6).equals("guild>") || (ConfigHandler.guildChat && (text.substring(0, 6).equals("guild>"))))) {						 
+						 int keywordInd = message.toLowerCase().substring(text.indexOf(": "), text.length()).indexOf(keyword);
 						 // check if player is a non using color code
 						 if (message.substring(startInd - 1, startInd).equals("7")) { 
 							 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(message.substring(0, keywordInd) +
-									 EnumChatFormatting.YELLOW + message.substring(keywordInd, keywordInd + keyword.toString().length()) +
-									 EnumChatFormatting.GRAY + message.substring(keywordInd + keyword.toString().length(), message.length())));
+									 EnumChatFormatting.YELLOW + message.substring(keywordInd, keywordInd + keyword.length()) +
+									 EnumChatFormatting.GRAY + message.substring(keywordInd + keyword.length(), message.length())));
 							 event.setCanceled(true);
-							 
+
 							 if (ConfigHandler.playDing) {
 								 Minecraft.getMinecraft().getSoundHandler().playSound(ding);
 							 }
@@ -90,10 +92,10 @@ public class MorePingsMod {
 						 // check if player is a donator
 						 else if (message.substring(startInd - 1, startInd).equals("f")) { 
 							 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(message.substring(0, keywordInd) +
-									 EnumChatFormatting.YELLOW + message.substring(keywordInd, keywordInd + keyword.toString().length()) +
-									 EnumChatFormatting.WHITE + message.substring(keywordInd + keyword.toString().length(), message.length())));
+									 EnumChatFormatting.YELLOW + message.substring(keywordInd, keywordInd + keyword.length()) +
+									 EnumChatFormatting.WHITE + message.substring(keywordInd + keyword.length(), message.length())));
 							 event.setCanceled(true);
-							 
+
 							 if (ConfigHandler.playDing) {
 								 Minecraft.getMinecraft().getSoundHandler().playSound(ding);
 							 }
@@ -159,19 +161,19 @@ public class MorePingsMod {
 
 			// on hypixel, messages enabled, and didn't last join hypixel
 			if (!scheduled && onHypixel && ConfigHandler.sendStatusMessages && !lastIP.contains(".hypixel.net")) {
-				new ScheduledCode(() -> sendEnabledMessage("on hypixel"), 120);
+				new ScheduledCode(() -> sendEnabledMessage("on hypixel"), 100);
 				scheduled = true;
 			}
 			// not on hypixel, messages enabled, and not the same server as last joined
 			else if (!scheduled && ConfigHandler.sendStatusMessages && !lastIP.equals(FMLClientHandler.instance().getClient().getCurrentServerData().serverIP)) {
-				new ScheduledCode(() -> sendDisabledMessage("not on hypixel"), 120);
+				new ScheduledCode(() -> sendDisabledMessage("not on hypixel"), 100);
 				scheduled = true;
 			}
 			
 			lastIP = FMLClientHandler.instance().getClient().getCurrentServerData().serverIP;
 		}
 		else if (ConfigHandler.sendStatusMessages && !scheduled) {
-			new ScheduledCode(() -> sendDisabledMessage("singleplayer mode"), 120);
+			new ScheduledCode(() -> sendDisabledMessage("singleplayer mode"), 100);
 			
 			scheduled = true;
 		}
