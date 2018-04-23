@@ -6,11 +6,11 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class ScheduledCode {
 	
-	public Runnable method;
+	public Runnable code;
 	public int ticks;
 	
-	public ScheduledCode (Runnable method, int ticksToWait) {
-		this.method = method;
+	public ScheduledCode (Runnable codeToRun, int ticksToWait) {
+		code = codeToRun;
 		ticks = ticksToWait;
 		
 		init();
@@ -23,7 +23,7 @@ public class ScheduledCode {
 	@SubscribeEvent
     public void onTickEvent(TickEvent.ClientTickEvent event) {
         if (ticks == 0) {
-            method.run();
+            code.run();
             
             MinecraftForge.EVENT_BUS.unregister(this);
         }
