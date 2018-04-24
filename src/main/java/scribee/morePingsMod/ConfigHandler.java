@@ -1,6 +1,7 @@
 package scribee.morePingsMod;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
@@ -15,11 +16,41 @@ public class ConfigHandler {
 	public static boolean guildChat;
 	public static boolean privateChat;
 	public static String[] keywords;
+	public static String pingColor;
+	public static String pingStyle;
 	
+	private static String[] validColors;
+	private static String[] validStyles;
+
 	private static boolean disabledLast = false;
-	
+
 	public static void init(FMLPreInitializationEvent event) {
 		config = new Configuration(event.getSuggestedConfigurationFile());
+		validColors = new String[] {
+				EnumChatFormatting.YELLOW + "Yellow", 
+				EnumChatFormatting.WHITE + "White", 
+				"None",
+				EnumChatFormatting.BLACK + "Black", 
+				EnumChatFormatting.DARK_BLUE + "Dark Blue", 
+				EnumChatFormatting.DARK_GREEN + "Dark Green", 
+				EnumChatFormatting.DARK_AQUA + "Dark Aqua", 
+				EnumChatFormatting.DARK_RED + "Dark Red", 
+				EnumChatFormatting.DARK_PURPLE + "Dark Purple", 
+				EnumChatFormatting.GOLD + "Gold", 
+				EnumChatFormatting.GRAY + "Gray", 
+				EnumChatFormatting.DARK_GRAY + "Dark Gray", 
+				EnumChatFormatting.BLUE + "Blue", 
+				EnumChatFormatting.GREEN + "Green", 
+				EnumChatFormatting.AQUA + "Aqua", 
+				EnumChatFormatting.RED + "Red", 
+				EnumChatFormatting.LIGHT_PURPLE + "Light Purple"
+		};
+		validStyles = new String[] {
+				"None",
+				EnumChatFormatting.BOLD + "Bold",
+				EnumChatFormatting.UNDERLINE + "Underline", 
+				EnumChatFormatting.ITALIC + "Italic"
+		};
 		
 		syncConfig();
 	}
@@ -54,6 +85,17 @@ public class ConfigHandler {
 	    		Configuration.CATEGORY_GENERAL, 
 	    		false, 
 	    		"Whether to ping for keywords in pms");
+	    
+	    pingColor = config.getString("Ping color", 
+	    		Configuration.CATEGORY_GENERAL, 
+	    		"Yellow", 
+	    		"What color to make keywords", 
+	    		validColors);
+	    pingStyle = config.getString("Ping styling", 
+	    		Configuration.CATEGORY_GENERAL, 
+	    		"None", 
+	    		"Styling to apply to keywords", 
+	    		validStyles);
 	    
 	    config.save();
 	    

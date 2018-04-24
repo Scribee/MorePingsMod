@@ -42,7 +42,7 @@ public class MorePingsMod {
 		//event.getSuggestedConfigurationFile().delete();
 		
 		ConfigHandler.init(event);
-		ConfigHandler.syncConfig();		
+		ConfigHandler.syncConfig();
 	}
 
 	@EventHandler
@@ -61,7 +61,7 @@ public class MorePingsMod {
 		 }
 	 }
 
-	 @SubscribeEvent(priority = EventPriority.LOW)
+	 @SubscribeEvent(priority = EventPriority.LOW) // setting priority fixes compatibility with some other chat mods
 	 public void onChatEvent(ClientChatReceivedEvent event) {
 		 // used to allow testing on singleplayer
 		 //onHypixel = true;
@@ -76,13 +76,13 @@ public class MorePingsMod {
 				 for (String keyword : keywordList) { 
 					 // check if any keywords appear in the content part of the message (don't want to be pinged every time Di-scri-minate chats)
 					 // also make sure that the message isn't in a pm/party chat/guild chat unless its enabled by the config
-					 if (text.substring(text.indexOf(": "), text.length()).contains(keyword) && (!text.substring(0, 5).equals("from ") || (ConfigHandler.privateChat && (text.substring(0, 5).equals("from ")))) && (!text.substring(0, 6).equals("party>") || (ConfigHandler.partyChat && (text.substring(0, 6).equals("party>")))) && (!text.substring(0, 6).equals("guild>") || (ConfigHandler.guildChat && (text.substring(0, 6).equals("guild>"))))) {						 
-						 int keywordInd = message.toLowerCase().substring(text.indexOf(": "), text.length()).indexOf(keyword);
-						 // check if player is a non using color code
+					 if (text.substring(text.indexOf(": ")).contains(keyword) && (!text.substring(0, 5).equals("from ") || (ConfigHandler.privateChat && (text.substring(0, 5).equals("from ")))) && (!text.substring(0, 6).equals("party>") || (ConfigHandler.partyChat && (text.substring(0, 6).equals("party>")))) && (!text.substring(0, 6).equals("guild>") || (ConfigHandler.guildChat && (text.substring(0, 6).equals("guild>"))))) {						 
+						 int keywordInd = message.toLowerCase().substring(message.indexOf(": ")).indexOf(keyword) + message.substring(0, message.indexOf(": ")).length();
+						 // check if player is a non using the color code just before the colon
 						 if (message.substring(startInd - 1, startInd).equals("7")) { 
 							 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(message.substring(0, keywordInd) +
-									 EnumChatFormatting.YELLOW + message.substring(keywordInd, keywordInd + keyword.length()) +
-									 EnumChatFormatting.GRAY + message.substring(keywordInd + keyword.length(), message.length())));
+									 getFormattedKeyword(keyword, true) + 
+									 message.substring(keywordInd + keyword.length())));
 							 event.setCanceled(true);
 
 							 if (ConfigHandler.playDing) {
@@ -92,8 +92,8 @@ public class MorePingsMod {
 						 // check if player is a donator
 						 else if (message.substring(startInd - 1, startInd).equals("f")) { 
 							 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(message.substring(0, keywordInd) +
-									 EnumChatFormatting.YELLOW + message.substring(keywordInd, keywordInd + keyword.length()) +
-									 EnumChatFormatting.WHITE + message.substring(keywordInd + keyword.length(), message.length())));
+									 getFormattedKeyword(keyword, false) + 
+									 message.substring(keywordInd + keyword.length())));
 							 event.setCanceled(true);
 
 							 if (ConfigHandler.playDing) {
@@ -148,9 +148,7 @@ public class MorePingsMod {
     	for (String keyword : ConfigHandler.keywords) {
     		keywordList.add(keyword);
     	}
-    	System.out.println("Unsorted: " + keywordList);
     	Collections.sort(keywordList, new LengthComparator());
-    	System.out.println("Sorted: " + keywordList);
     }
     
     public static void checkServer() {
@@ -177,5 +175,16 @@ public class MorePingsMod {
 			
 			scheduled = true;
 		}
+    }
+    
+    public static String getFormattedKeyword(String keyword, boolean isNon) {
+    	String ping = keyword + EnumChatFormatting.RESET;
+    	
+    	ping += isNon ? EnumChatFormatting.GRAY : EnumChatFormatting.WHITE;
+
+    	ping = ConfigHandler.pingStyle.equals("None") ? ping : ConfigHandler.pingStyle.substring(0, 2) + ping;
+    	ping = ConfigHandler.pingColor.equals("None") ? ping : ConfigHandler.pingColor.substring(0, 2) + ping;
+
+    	return ping;
     }
 }
