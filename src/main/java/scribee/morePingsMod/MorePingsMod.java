@@ -61,22 +61,23 @@ public class MorePingsMod {
 		 }
 	 }
 
-	 @SubscribeEvent(priority = EventPriority.LOW) // setting priority fixes compatibility with some other chat mods
+	 @SubscribeEvent(priority = EventPriority.LOW) // low priority improves compatibility with some other chat mods
 	 public void onChatEvent(ClientChatReceivedEvent event) {
 		 // used to allow testing on singleplayer
 		 //onHypixel = true;
 		 if (!ConfigHandler.disableMod && onHypixel) {
-			 
+
 			 String message = event.message.getFormattedText(); // used for keeping the formatting for the final message
 			 String text = event.message.getUnformattedText().toLowerCase(); // used for checking actual message content
-			 
+
 			 int startInd = message.indexOf(": "); // index of the beginning of the message content in the formatted string
 
 			 if (startInd != -1) {
 				 for (String keyword : keywordList) { 
+					 String messageToCheck = ConfigHandler.caseSensitive ? message.substring(message.indexOf(": ")) : message.substring(message.indexOf(": ")).toLowerCase();
 					 // check if any keywords appear in the content part of the message (don't want to be pinged every time Di-scri-minate chats)
 					 // also make sure that the message isn't in a pm/party chat/guild chat unless its enabled by the config
-					 if (text.substring(text.indexOf(": ")).contains(keyword) && (!text.substring(0, 5).equals("from ") || (ConfigHandler.privateChat && (text.substring(0, 5).equals("from ")))) && (!text.substring(0, 6).equals("party>") || (ConfigHandler.partyChat && (text.substring(0, 6).equals("party>")))) && (!text.substring(0, 6).equals("guild>") || (ConfigHandler.guildChat && (text.substring(0, 6).equals("guild>"))))) {						 
+					 if (messageToCheck.contains(keyword) && (!text.substring(0, 5).equals("from ") || (ConfigHandler.privateChat && (text.substring(0, 5).equals("from ")))) && (!text.substring(0, 6).equals("party>") || (ConfigHandler.partyChat && (text.substring(0, 6).equals("party>")))) && (!text.substring(0, 6).equals("guild>") || (ConfigHandler.guildChat && (text.substring(0, 6).equals("guild>"))))) {						 
 						 int keywordInd = message.toLowerCase().substring(message.indexOf(": ")).indexOf(keyword) + message.substring(0, message.indexOf(": ")).length();
 						 // check if player is a non using the color code just before the colon
 						 if (message.substring(startInd - 1, startInd).equals("7")) { 

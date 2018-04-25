@@ -9,6 +9,7 @@ public class ConfigHandler {
 
 	public static Configuration config;
 	
+	public static boolean caseSensitive;
 	public static boolean sendStatusMessages;
 	public static boolean disableMod;
 	public static boolean playDing;
@@ -60,6 +61,10 @@ public class ConfigHandler {
 	    		Configuration.CATEGORY_GENERAL,
 	    		false,
 	    		"Whether the mod is disabled or not");
+	    caseSensitive = config.getBoolean("Make keywords case sensitive",
+	    		Configuration.CATEGORY_GENERAL,
+	    		false,
+	    		"Whether keywords should be pinged for only if they match the exact casing of the set keyword");
 	    keywords = config.getStringList("Keywords", 
 	    		Configuration.CATEGORY_GENERAL,
 	    		new String[] { "" },
