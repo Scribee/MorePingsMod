@@ -109,7 +109,7 @@ public class MorePingsMod {
 			 else if (text.length() > 24) {
 				 // check for nick set message to add nick as a keyword
 				 if (message.contains("You are now nicked as ")) {
-					 ConfigHandler.config.get("Hidden", "Current nick", "", "Automatically stores the name that the player is currently nicked as").set(text.substring(22, text.length() - 1));
+					 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set(text.substring(22, text.length() - 1));
 					 ConfigHandler.syncConfig();
 					 updateKeywords();
 					 
@@ -122,7 +122,7 @@ public class MorePingsMod {
 							 );
 				 }
 				 else if (message.contains("Your nick has been reset!")) {
-					 ConfigHandler.config.get("Hidden", "Current nick", "", "Automatically stores the name that the player is currently nicked as").set("");
+					 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set("");
 					 ConfigHandler.syncConfig();
 					 updateKeywords();
 					 
@@ -146,6 +146,9 @@ public class MorePingsMod {
     	if (!ConfigHandler.disableMod)
     		checkServer();
     }
+    
+    // TODO make a single, more generalized, message sender
+    // include catch for npe if player left during delay
     
     /**
      * Sends a message to the player stating the mod is disabled
@@ -208,11 +211,13 @@ public class MorePingsMod {
 			// on hypixel, messages enabled, and didn't last join hypixel
 			if (!scheduled && onHypixel && ConfigHandler.sendStatusMessages && !lastIP.contains(".hypixel.net")) {
 				new ScheduledCode(() -> sendEnabledMessage("on hypixel"), 100);
+				
 				scheduled = true;
 			}
 			// not on hypixel, messages enabled, and not the same server as last joined
 			else if (!scheduled && ConfigHandler.sendStatusMessages && !lastIP.equals(FMLClientHandler.instance().getClient().getCurrentServerData().serverIP)) {
 				new ScheduledCode(() -> sendDisabledMessage("not on hypixel"), 100);
+				
 				scheduled = true;
 			}
 			
