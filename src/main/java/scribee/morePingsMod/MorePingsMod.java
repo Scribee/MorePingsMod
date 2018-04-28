@@ -62,7 +62,7 @@ public class MorePingsMod {
 	 }
 
 	 // TODO switch over to using regex
-	 @SubscribeEvent(priority = EventPriority.LOW) // low priority improves compatibility with some other chat mods
+	 @SubscribeEvent(priority = EventPriority.HIGH) // high priority improves compatibility with some other chat mods (since the change to how the formatted message is sent)
 	 public void onChatEvent(ClientChatReceivedEvent event) {
 		 // used to allow testing on singleplayer
 		 //onHypixel = true;
@@ -77,26 +77,27 @@ public class MorePingsMod {
 			 if (startInd != -1) {
 				 for (String keyword : keywordList) { 
 					 String messageToCheck = ConfigHandler.caseSensitive ? message.substring(message.indexOf(": ")) : message.substring(message.indexOf(": ")).toLowerCase();
-					 // check if any keywords appear in the content part of the message (don't want to be pinged every time Di-scri-minate chats)
-					 // also make sure that the message isn't in a pm/party chat/guild chat unless its enabled by the config
-					 if (messageToCheck.contains(keyword) && (!text.substring(0, 5).equals("from ") || (ConfigHandler.privateChat && (text.substring(0, 5).equals("from ")))) && (!text.substring(0, 6).equals("party>") || (ConfigHandler.partyChat && (text.substring(0, 6).equals("party>")))) && (!text.substring(0, 6).equals("guild>") || (ConfigHandler.guildChat && (text.substring(0, 6).equals("guild>"))))) {						 
+					 /** 
+					  * Check if any keywords appear in the content part of the message (don't want to be pinged every time Di-scri-minate chats).
+					  * Also make sure that the message isn't in a pm(from someone)/party chat/guild chat unless its enabled by the config.
+					  * Messages to people are always ignored.
+					  */
+					 if (messageToCheck.contains(keyword) && (!text.substring(0, 5).equals("from ") || (ConfigHandler.privateChat && (text.substring(0, 5).equals("from ")))) && (!text.substring(0, 6).equals("party>") || (ConfigHandler.partyChat && (text.substring(0, 6).equals("party>")))) && (!text.substring(0, 6).equals("guild>") || (ConfigHandler.guildChat && (text.substring(0, 6).equals("guild>")))) && !text.substring(0, 3).equals("to ")) {						 
 						 int keywordInd = message.toLowerCase().substring(message.indexOf(": ")).indexOf(keyword) + message.substring(0, message.indexOf(": ")).length();
 						 // check if player is a non using the color code just before the colon
 						 if (message.substring(startInd - 1, startInd).equals("7")) { 
-							 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(message.substring(0, keywordInd) +
+							 event.message = new ChatComponentText(message.substring(0, keywordInd) +
 									 getFormattedKeyword(keyword, true) + 
-									 message.substring(keywordInd + keyword.length())));
-							 event.setCanceled(true);
+									 message.substring(keywordInd + keyword.length()));
 
 							 if (ConfigHandler.playDing)
 								 Minecraft.getMinecraft().getSoundHandler().playSound(ding);
 						 }
 						 // check if player is a donator
 						 else if (message.substring(startInd - 1, startInd).equals("f")) { 
-							 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(message.substring(0, keywordInd) +
+							 event.message = new ChatComponentText(message.substring(0, keywordInd) +
 									 getFormattedKeyword(keyword, false) + 
-									 message.substring(keywordInd + keyword.length())));
-							 event.setCanceled(true);
+									 message.substring(keywordInd + keyword.length()));
 
 							 if (ConfigHandler.playDing)
 								 Minecraft.getMinecraft().getSoundHandler().playSound(ding);
