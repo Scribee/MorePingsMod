@@ -9,6 +9,7 @@ public class ConfigHandler {
 
 	public static Configuration config;
 	
+	public static boolean useNickAsKeyword;
 	public static boolean caseSensitive;
 	public static boolean sendStatusMessages;
 	public static boolean disableMod;
@@ -19,6 +20,7 @@ public class ConfigHandler {
 	public static String[] keywords;
 	public static String pingColor;
 	public static String pingStyle;
+	public static String nick;
 	
 	private static String[] validColors;
 	private static String[] validStyles;
@@ -28,8 +30,6 @@ public class ConfigHandler {
 	public static void init(FMLPreInitializationEvent event) {
 		config = new Configuration(event.getSuggestedConfigurationFile());
 		validColors = new String[] {
-				EnumChatFormatting.YELLOW + "Yellow", 
-				EnumChatFormatting.WHITE + "White", 
 				"None",
 				EnumChatFormatting.BLACK + "Black", 
 				EnumChatFormatting.DARK_BLUE + "Dark Blue", 
@@ -44,7 +44,9 @@ public class ConfigHandler {
 				EnumChatFormatting.GREEN + "Green", 
 				EnumChatFormatting.AQUA + "Aqua", 
 				EnumChatFormatting.RED + "Red", 
-				EnumChatFormatting.LIGHT_PURPLE + "Light Purple"
+				EnumChatFormatting.LIGHT_PURPLE + "Light Purple",
+				EnumChatFormatting.YELLOW + "Yellow", 
+				EnumChatFormatting.WHITE + "White"
 		};
 		validStyles = new String[] {
 				"None",
@@ -69,6 +71,16 @@ public class ConfigHandler {
 	    		Configuration.CATEGORY_GENERAL,
 	    		new String[] { "" },
 	    		"List of keywords");
+	    useNickAsKeyword = config.getBoolean("Add nick to keywords",
+	    		Configuration.CATEGORY_GENERAL,
+	    		true,
+	    		"If true, when you're nicked your nickname will be used as a keyword");
+	    nick = config.getString("Current nick",
+	    		"Hidden", // won't be displayed in the config gui
+	    		"",
+	    		"Automatically stores the name that the player is currently nicked as"
+	    		);
+	    
 	    sendStatusMessages = config.getBoolean("Send mod status in chat",
 	    		Configuration.CATEGORY_GENERAL,
 	    		true,

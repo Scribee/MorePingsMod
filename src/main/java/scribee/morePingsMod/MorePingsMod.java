@@ -61,6 +61,7 @@ public class MorePingsMod {
 		 }
 	 }
 
+	 // TODO switch over to using regex
 	 @SubscribeEvent(priority = EventPriority.LOW) // low priority improves compatibility with some other chat mods
 	 public void onChatEvent(ClientChatReceivedEvent event) {
 		 // used to allow testing on singleplayer
@@ -72,6 +73,7 @@ public class MorePingsMod {
 
 			 int startInd = message.indexOf(": "); // index of the beginning of the message content in the formatted string
 
+			 // if there is a colon in the message
 			 if (startInd != -1) {
 				 for (String keyword : keywordList) { 
 					 String messageToCheck = ConfigHandler.caseSensitive ? message.substring(message.indexOf(": ")) : message.substring(message.indexOf(": ")).toLowerCase();
@@ -86,9 +88,8 @@ public class MorePingsMod {
 									 message.substring(keywordInd + keyword.length())));
 							 event.setCanceled(true);
 
-							 if (ConfigHandler.playDing) {
+							 if (ConfigHandler.playDing)
 								 Minecraft.getMinecraft().getSoundHandler().playSound(ding);
-							 }
 						 }
 						 // check if player is a donator
 						 else if (message.substring(startInd - 1, startInd).equals("f")) { 
@@ -97,12 +98,38 @@ public class MorePingsMod {
 									 message.substring(keywordInd + keyword.length())));
 							 event.setCanceled(true);
 
-							 if (ConfigHandler.playDing) {
+							 if (ConfigHandler.playDing)
 								 Minecraft.getMinecraft().getSoundHandler().playSound(ding);
-							 }
 						 }
 						 break;
 					 }
+				 }
+			 }
+			 else if (text.length() > 24) {
+				 // check for nick set message to add nick as a keyword
+				 if (message.contains("You are now nicked as ")) {
+					 ConfigHandler.config.get("Hidden", "Current nick", "", "Automatically stores the name that the player is currently nicked as").set(text.substring(22, text.length() - 1));
+					 ConfigHandler.syncConfig();
+					 updateKeywords();
+					 
+					 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(
+							 EnumChatFormatting.WHITE + "[More Pings] " + 
+									 EnumChatFormatting.GREEN + "Nick added to keywords " + 
+									 EnumChatFormatting.WHITE + "(nicked as " + 
+									 EnumChatFormatting.ITALIC + ConfigHandler.nick + 
+									 EnumChatFormatting.RESET + ")")
+							 );
+				 }
+				 else if (message.contains("Your nick has been reset!")) {
+					 ConfigHandler.config.get("Hidden", "Current nick", "", "Automatically stores the name that the player is currently nicked as").set("");
+					 ConfigHandler.syncConfig();
+					 updateKeywords();
+					 
+					 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(
+							 EnumChatFormatting.WHITE + "[More Pings] " + 
+									 EnumChatFormatting.RED + "Nick removed from keywords " + 
+									 EnumChatFormatting.WHITE + "(unnicked)")
+							 );
 				 }
 			 }
 		 }
@@ -115,14 +142,18 @@ public class MorePingsMod {
     
     @SubscribeEvent
     public void onWorldJoinEvent(WorldEvent.Load event) {
-    	if (!ConfigHandler.disableMod) {
+    	if (!ConfigHandler.disableMod)
     		checkServer();
-    	}
     }
     
+    /**
+     * Sends a message to the player stating the mod is disabled
+     * @param reason Text to put in parentheses after message
+     */
     public static void sendDisabledMessage(String reason) {
-    	IChatComponent message = new ChatComponentText(
+    	IChatComponent message = new ChatComponentText(reason.equals("") ?
     			EnumChatFormatting.WHITE + "[More Pings] " + 
+    			EnumChatFormatting.RED + "Mod Disabled " : EnumChatFormatting.WHITE + "[More Pings] " + 
     			EnumChatFormatting.RED + "Mod Disabled " + 
     			EnumChatFormatting.WHITE + "(" + reason + ")"
     		);
@@ -131,32 +162,47 @@ public class MorePingsMod {
     	scheduled = false;
     }
     
+    /**
+     * Sends a message to the player stating the mod is enabled
+     * @param reason Text to put in parentheses after message
+     */
     public static void sendEnabledMessage(String reason) {
-    	IChatComponent message = new ChatComponentText(
+    	IChatComponent message = new ChatComponentText(reason.equals("") ?
     			EnumChatFormatting.WHITE + "[More Pings] " + 
+    			EnumChatFormatting.GREEN + "Re-enabled" : EnumChatFormatting.WHITE + "[More Pings] " + 
     			EnumChatFormatting.GREEN + "Re-enabled " + 
-    			EnumChatFormatting.WHITE + "(" + reason + ")"
+    			EnumChatFormatting.WHITE + "(" + reason + ")" 
     		);
     	Minecraft.getMinecraft().thePlayer.addChatMessage(message);
     	
     	scheduled = false;
     }
     
+    /**
+     * Populates keywordList using current player nick (if exists) and keywords specified in the config file
+     */
     public static void updateKeywords() {
-    	if (!keywordList.isEmpty()) {
+    	if (!keywordList.isEmpty())
     		keywordList.clear();
-    	}
+    	
     	for (String keyword : ConfigHandler.keywords) {
-    		keywordList.add(keyword);
+    		keywordList.add(ConfigHandler.caseSensitive ? keyword : keyword.toLowerCase());
     	}
+    	
+    	if (ConfigHandler.useNickAsKeyword && !ConfigHandler.nick.equals(""))
+    		keywordList.add(ConfigHandler.caseSensitive ? ConfigHandler.nick : ConfigHandler.nick.toLowerCase());
+    	
     	Collections.sort(keywordList, new LengthComparator());
     }
     
+    /**
+     * Checks whether the player is on hypixel, and sends mod status messages in chat
+     * based on whether they are.
+     */
     public static void checkServer() {
     	if (!Minecraft.getMinecraft().isSingleplayer()) {
-			if (FMLClientHandler.instance().getClient().getCurrentServerData().serverIP.contains(".hypixel.net")) {
+			if (FMLClientHandler.instance().getClient().getCurrentServerData().serverIP.contains(".hypixel.net"))
 				onHypixel = true;
-			}
 
 			// on hypixel, messages enabled, and didn't last join hypixel
 			if (!scheduled && onHypixel && ConfigHandler.sendStatusMessages && !lastIP.contains(".hypixel.net")) {
@@ -178,6 +224,12 @@ public class MorePingsMod {
 		}
     }
     
+    /**
+     * Used to highlight keywords however the user has selected in the config file
+     * @param keyword Keyword to add styling and color to
+     * @param isNon If the player is a non
+     * @return keyword with color and styling
+     */
     public static String getFormattedKeyword(String keyword, boolean isNon) {
     	String ping = keyword + EnumChatFormatting.RESET;
     	
