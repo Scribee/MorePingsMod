@@ -23,6 +23,7 @@ public class ConfigHandler {
 	public static boolean partyChat;
 	public static boolean guildChat;
 	public static boolean privateChat;
+	public static boolean firstJoin;
 	public static String[] keywords;
 	public static String pingColor;
 	public static String pingStyle;
@@ -33,6 +34,11 @@ public class ConfigHandler {
 
 	private static boolean disabledLast = false;
 
+	/**
+	 * Creates config file, syncs variables and creates properties, and sets valid colors and styles
+	 * 
+	 * @param event Passed from preInit in main mod class
+	 */
 	public static void init(FMLPreInitializationEvent event) {
 		config = new Configuration(event.getSuggestedConfigurationFile());
 		
@@ -65,6 +71,9 @@ public class ConfigHandler {
 		syncConfig();
 	}
 
+	/**
+	 * Syncs variables with config properties, and creates properties if they don't exist yet
+	 */
 	public static void syncConfig() {
 		/**
 		 * Keyword Options
@@ -84,11 +93,16 @@ public class ConfigHandler {
 	    
 	    /**
 	     * Hidden
+	     * Not displayed in config Gui
 	     */
 	    nick = config.getString("Current nick",
-	    		CATEGORY_HIDDEN, // won't be displayed in the config gui
+	    		CATEGORY_HIDDEN,
 	    		"",
 	    		"Automatically stores the name that the player is currently nicked as");
+	    firstJoin = config.getBoolean("Just started using mod",
+	    		CATEGORY_HIDDEN,
+	    		true,
+	    		"Used to send an info message only the first time they join a world with the mod");
 	    
 	    /**
 	     * General Settings

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
@@ -40,12 +41,12 @@ public class MorePingsMod {
 	private static List<String> keywordList = new ArrayList<String>();
 	
 	private static ResourceLocation location = new ResourceLocation("mp:ding");
-	private static PositionedSoundRecord ding = PositionedSoundRecord.create(location);
+	private static ISound ding = PositionedSoundRecord.create(location);
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
 		// used when testing to reset config each time
-		//event.getSuggestedConfigurationFile().delete();
+		event.getSuggestedConfigurationFile().delete();
 		
 		ConfigHandler.init(event);
 		ConfigHandler.syncConfig();
@@ -72,7 +73,7 @@ public class MorePingsMod {
 	 @SubscribeEvent(priority = EventPriority.HIGH) // high priority improves compatibility with some other chat mods (since the change to how the formatted message is sent)
 	 public void onChatEvent(ClientChatReceivedEvent event) {
 		 // used to allow testing on singleplayer
-		 //onHypixel = true;
+		 onHypixel = true;
 		 if (!ConfigHandler.disableMod && onHypixel) {
 
 			 String message = event.message.getFormattedText(); // used for keeping the formatting for the final message
@@ -113,80 +114,96 @@ public class MorePingsMod {
 					 }
 				 }
 			 }
-			 else if (text.length() > 24) {
-				 // check for nick set message to add nick as a keyword
-				 if (message.contains("You are now nicked as ")) {
-					 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set(text.substring(22, text.length() - 1));
-					 ConfigHandler.syncConfig();
-					 updateKeywords();
-					 
-					 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(
-							 EnumChatFormatting.WHITE + "[More Pings] " + 
-									 EnumChatFormatting.GREEN + "Nick added to keywords " + 
-									 EnumChatFormatting.WHITE + "(nicked as " + 
-									 EnumChatFormatting.ITALIC + ConfigHandler.nick + 
-									 EnumChatFormatting.RESET + ")")
-							 );
-				 }
-				 else if (message.contains("Your nick has been reset!")) {
-					 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set("");
-					 ConfigHandler.syncConfig();
-					 updateKeywords();
-					 
-					 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(
-							 EnumChatFormatting.WHITE + "[More Pings] " + 
-									 EnumChatFormatting.RED + "Nick removed from keywords " + 
-									 EnumChatFormatting.WHITE + "(unnicked)")
-							 );
-				 }
+			 // check for nick set message to add nick as a keyword
+			 else if (message.contains("You are now nicked as ")) {
+				 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set(text.substring(22, text.length() - 1));
+				 ConfigHandler.syncConfig();
+				 updateKeywords();
+
+				 sendModMessage("Nick added to keywords", "nicked as " + EnumChatFormatting.ITALIC + ConfigHandler.nick + EnumChatFormatting.RESET, 0, true);
+			 }
+			 // check for nick reset message to remove nick from keywords
+			 else if (message.contains("Your nick has been reset!")) {
+				 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set("");
+				 ConfigHandler.syncConfig();
+				 updateKeywords();
+
+				 sendModMessage("Nick removed from keywords", "reset nick", 0, true);
 			 }
 		 }
 	 }
 
-    @SubscribeEvent
-    public void onPlayerLeaveEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
-       onHypixel = false;
-    }
-    
+	 @SubscribeEvent
+	 public void onPlayerLeaveEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
+		 onHypixel = false;
+	 }
+
     @SubscribeEvent
     public void onWorldJoinEvent(WorldEvent.Load event) {
     	if (!ConfigHandler.disableMod)
     		checkServer();
+
+    	// send welcome message if this is the first time using the mod
+    	if (ConfigHandler.firstJoin) {
+    		ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Just started using mod", true, "Used to send an info message only the first time they join a world with the mod").set(false);
+    		ConfigHandler.syncConfig();
+    		
+    		IChatComponent welcome = new ChatComponentText(" \n" + EnumChatFormatting.BLUE + "-----" + EnumChatFormatting.AQUA + "Thanks for downloading the More Pings Mod!" + EnumChatFormatting.BLUE + "-----" + EnumChatFormatting.WHITE + "\n \nYou can change all mod settings with /morepings, or in the forge configuration GUI :D\n \n" + EnumChatFormatting.BLUE + "-----------------------------------------------\n ");
+    		new ScheduledCode(() -> Minecraft.getMinecraft().thePlayer.addChatMessage(welcome), 40);
+    	}
     }
     
-    // TODO make a single, more generalized, message sender
-    // include catch for npe if player left during delay
-    
+    /**
+     * Used to send all mod status messages in chat
+     * 
+     * @param content Main content of the message
+     * @param extraInfo Any information to be included in parentheses after content
+     * @param delay Number of ticks to wait before sending message (set to 0 to send the message immediately)
+     */
+    public static void sendModMessage(String content, String extraInfo, int delay, boolean addPrefix) {
+    	IChatComponent message = addPrefix ? new ChatComponentText(EnumChatFormatting.WHITE + "[More Pings] ") : new ChatComponentText("");
+    	message.appendText(content);
+    	
+    	if (!extraInfo.equals(""))
+    		message.appendText("(" + extraInfo + ")");
+
+    	try {
+    		if (delay > 0)
+    			new ScheduledCode(() -> sendModMessage(message.getFormattedText(), "", 0, false), delay);
+    		else if (delay == 0)
+    			Minecraft.getMinecraft().thePlayer.addChatMessage(message);
+    	}
+    	catch (NullPointerException e) {
+    		System.out.println("Player left while message pending");
+    	}
+    }
+
     /**
      * Sends a message to the player stating the mod is disabled
+     * 
      * @param reason Text to put in parentheses after message
      */
     public static void sendDisabledMessage(String reason) {
-    	IChatComponent message = new ChatComponentText(reason.equals("") ?
-    			EnumChatFormatting.WHITE + "[More Pings] " + 
-    			EnumChatFormatting.RED + "Mod Disabled " : EnumChatFormatting.WHITE + "[More Pings] " + 
-    			EnumChatFormatting.RED + "Mod Disabled " + 
-    			EnumChatFormatting.WHITE + "(" + reason + ")"
-    		);
-    	Minecraft.getMinecraft().thePlayer.addChatMessage(message);
+    	String message = EnumChatFormatting.RED + "Mod Disabled " + EnumChatFormatting.WHITE;
     	
-    	scheduled = false;
+    	sendModMessage(message, reason, 100, true);
+    	
+    	if (scheduled)
+    		scheduled = false;
     }
     
     /**
      * Sends a message to the player stating the mod is enabled
+     * 
      * @param reason Text to put in parentheses after message
      */
     public static void sendEnabledMessage(String reason) {
-    	IChatComponent message = new ChatComponentText(reason.equals("") ?
-    			EnumChatFormatting.WHITE + "[More Pings] " + 
-    			EnumChatFormatting.GREEN + "Re-enabled" : EnumChatFormatting.WHITE + "[More Pings] " + 
-    			EnumChatFormatting.GREEN + "Re-enabled " + 
-    			EnumChatFormatting.WHITE + "(" + reason + ")" 
-    		);
-    	Minecraft.getMinecraft().thePlayer.addChatMessage(message);
+    	String message = EnumChatFormatting.GREEN + "Re-enabled" + EnumChatFormatting.WHITE;
     	
-    	scheduled = false;
+    	sendModMessage(message, reason, 100, true);
+    	
+    	if (scheduled)
+    		scheduled = false;
     }
     
     /**
@@ -238,7 +255,8 @@ public class MorePingsMod {
     }
     
     /**
-     * Used to highlight keywords however the user has selected in the config file
+     * Used to format keywords based on chosen preferences from the config file
+     * 
      * @param keyword Keyword to add styling and color to
      * @param isNon If the player is a non
      * @return keyword with color and styling
