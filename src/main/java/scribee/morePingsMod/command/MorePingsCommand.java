@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.util.BlockPos;
 import scribee.morePingsMod.gui.MorePingsConfigGui;
 import scribee.morePingsMod.util.ScheduledCode;
 
@@ -22,6 +23,7 @@ public class MorePingsCommand extends CommandBase {
         List<String> aliases = new ArrayList<String>();
         aliases.add("mp");
         aliases.add("morepingsmod");
+        aliases.add("keywords");
         
         return aliases;
     }
