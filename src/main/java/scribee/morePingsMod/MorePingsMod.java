@@ -10,6 +10,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
@@ -22,8 +23,13 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+import scribee.morePingsMod.command.MorePingsCommand;
+import scribee.morePingsMod.config.ConfigHandler;
+import scribee.morePingsMod.util.LengthComparator;
+import scribee.morePingsMod.util.Reference;
+import scribee.morePingsMod.util.ScheduledCode;
 
-@Mod(modid = Reference.MODID, name = Reference.MOD_NAME, version = Reference.VERSION, guiFactory = Reference.GUI_FACTORY)
+@Mod(modid = Reference.MODID, name = Reference.MOD_NAME, version = Reference.VERSION, guiFactory = Reference.GUI_FACTORY, clientSideOnly = true)
 public class MorePingsMod {
 	
 	// used to make sure the disable/enable message sends only the first time WorldEvent.Load is fired
@@ -48,7 +54,8 @@ public class MorePingsMod {
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
 		MinecraftForge.EVENT_BUS.register(this);
-		
+        ClientCommandHandler.instance.registerCommand(new MorePingsCommand());
+
 		updateKeywords();
 	}
 	
