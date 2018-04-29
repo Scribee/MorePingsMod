@@ -27,8 +27,7 @@ public class ScheduledCode {
             
             MinecraftForge.EVENT_BUS.unregister(this);
         }
-        else {
+        else
         	ticks--;
-        }
     }
 }
