@@ -28,7 +28,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import scribee.morePingsMod.command.MorePingsCommand;
 import scribee.morePingsMod.config.ConfigHandler;
-import scribee.morePingsMod.util.LengthComparator;
 import scribee.morePingsMod.util.Reference;
 import scribee.morePingsMod.util.ScheduledCode;
 
