@@ -46,7 +46,7 @@ public class MorePingsMod {
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
 		// used when testing to reset config each time
-		event.getSuggestedConfigurationFile().delete();
+		//event.getSuggestedConfigurationFile().delete();
 		
 		ConfigHandler.init(event);
 		ConfigHandler.syncConfig();
@@ -70,14 +70,14 @@ public class MorePingsMod {
 	 }
 
 	 // TODO switch over to using regex
-	 @SubscribeEvent(priority = EventPriority.HIGH) // high priority improves compatibility with some other chat mods (since the change to how the formatted message is sent)
+	 @SubscribeEvent(priority = EventPriority.LOW) // low priority improves compatibility with some other chat mods (since the change to how the formatted message is sent)
 	 public void onChatEvent(ClientChatReceivedEvent event) {
 		 // used to allow testing on singleplayer
-		 onHypixel = true;
+		 //onHypixel = true;
 		 if (!ConfigHandler.disableMod && onHypixel) {
 
 			 String message = event.message.getFormattedText(); // used for keeping the formatting for the final message
-			 String text = event.message.getUnformattedText().toLowerCase(); // used for checking actual message content
+			 String text = event.message.getUnformattedText(); // used for checking actual message content
 
 			 int startInd = message.indexOf(": "); // index of the beginning of the message content in the formatted string
 
@@ -90,8 +90,8 @@ public class MorePingsMod {
 					  * Also make sure that the message isn't in a pm(from someone)/party chat/guild chat unless its enabled by the config.
 					  * Messages to people are always ignored.
 					  */
-					 if (messageToCheck.contains(keyword) && (!text.substring(0, 5).equals("from ") || (ConfigHandler.privateChat && (text.substring(0, 5).equals("from ")))) && (!text.substring(0, 6).equals("party>") || (ConfigHandler.partyChat && (text.substring(0, 6).equals("party>")))) && (!text.substring(0, 6).equals("guild>") || (ConfigHandler.guildChat && (text.substring(0, 6).equals("guild>")))) && !text.substring(0, 3).equals("to ")) {						 
-						 int keywordInd = message.toLowerCase().substring(message.indexOf(": ")).indexOf(keyword) + message.substring(0, message.indexOf(": ")).length();
+					 if (messageToCheck.contains(keyword) && (!text.substring(0, 5).equalsIgnoreCase("from ") || (ConfigHandler.privateChat && (text.substring(0, 5).equalsIgnoreCase("from ")))) && (!text.substring(0, 6).equalsIgnoreCase("party>") || (ConfigHandler.partyChat && (text.substring(0, 6).equalsIgnoreCase("party>")))) && (!text.substring(0, 6).equalsIgnoreCase("guild>") || (ConfigHandler.guildChat && (text.substring(0, 6).equalsIgnoreCase("guild>")))) && !text.substring(0, 3).equalsIgnoreCase("to ")) {						 
+						 int keywordInd = messageToCheck.indexOf(keyword) + startInd;
 						 // check if player is a non using the color code just before the colon
 						 if (message.substring(startInd - 1, startInd).equals("7")) { 
 							 event.message = new ChatComponentText(message.substring(0, keywordInd) +
