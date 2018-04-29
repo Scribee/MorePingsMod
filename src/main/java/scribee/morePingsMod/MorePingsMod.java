@@ -115,14 +115,14 @@ public class MorePingsMod {
 			 }
 			 // check for nick set message to add nick as a keyword
 			 if (message.length() > 27 && message.contains("You are now nicked as ")) {
-				 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set(message.substring(24, message.length() - 1));
+				 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set(message.substring(26, message.length() - 1));
 				 ConfigHandler.syncConfig();
 				 updateKeywords();
 
 				 sendModMessage("Nick added to keywords", "nicked as " + EnumChatFormatting.ITALIC + ConfigHandler.nick + EnumChatFormatting.RESET, 2, true);
 			 }
 			 // check for nick reset message to remove nick from keywords
-			 else if (message.length() == 27 && message.substring(2).equals("Your nick has been reset!")) {
+			 else if (message.length() == 31 && message.contains("Your nick has been reset!")) {
 				 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set("");
 				 ConfigHandler.syncConfig();
 				 updateKeywords();
