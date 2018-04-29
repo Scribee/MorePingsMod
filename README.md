@@ -1,20 +1,35 @@
-# MorePingsMod 1.8
-Pings you when set keywords show up in chat, by making the word yellow and playing a ding noise
+# MorePingsMod 1.8.9
+Pings you when set keywords show up in chat, by formatting the word to be fancy, and playing a ding noise
 
 ## More Information
-Does nothing in singleplayer and on servers other than hypixel
+Does nothing in singleplayer and on servers other than hypixel.
 
 ## Config Settings
-`Disable Mod`: set to true to disable the mod
 
-`Keywords`: comma separated list of keywords you want to be pinged for
+_General Settings_
 
-`Send mod status in chat`: whether or not to messages in chat like '[MorePings] Mod Disabled (not on hypixel)
+`Disable Mod`: Set to true to disable the mod
 
-`Play ding sound for keywords`: whether or not to play a sound when a keyword appears in chat
+`Send mod status in chat`: Whether or not to messages in chat like '[MorePings] Mod Disabled (not on hypixel)
 
-`Ping for party chat`: whether or not to check party chat messages for keywords
+`Play ding sound for keywords`: Whether or not to play a sound when a keyword appears in chat
 
-`Ping for guild chat`: whether or not to check guild chat messages for keywords
+_Keyword Settings_
 
-`Ping for private messages`: whether or not to check private messages for keywords
+`Keywords`: Comma separated list of keywords you want to be pinged for
+
+`Make keywords case sensitive`: Whether or not to use casing of set keywords
+
+`Automatically add nick to keywords`: Whether or not to use nick as a keyword when /nick'ed
+
+_Preferences_
+
+`Ping for party chat`: Whether or not to check party chat messages for keywords
+
+`Ping for guild chat`: Whether or not to check guild chat messages for keywords
+
+`Ping for private messages`: Whether or not to check private messages for keywords
+
+`Keyword color`: What color to make keywords when they appear in chat. Can be any of the 16 default minecraft colors, or none.
+
+`Keyword style`: What styling to apply to keywords when they appear in chat. Can be any of the 5 styles, or none.
