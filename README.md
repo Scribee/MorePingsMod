@@ -1,12 +1,13 @@
 # MorePingsMod 1.8.9
 Pings you when customizable keywords show up in chat, by formatting the word to be fancy, and playing a ding noise.
 
-## More Information
-Does nothing in singleplayer and on servers other than hypixel.
+The majority of the mod's settings can be customized by the command /morepings or via the forge configuration GUI. The different config settings and their descriptions are [listed below](https://github.com/Scribee/MorePingsMod-1.8.9#config-settings) :-)
+
+_NOTE_: The mod does nothing in singleplayer and on servers other than hypixel.
 
 ## Config Settings
 
-_General Settings_
+**_General Settings_**
 
 `Disable Mod`: Set to true to disable the mod.
 
@@ -15,7 +16,7 @@ _General Settings_
 `Play ding sound for keywords`: Whether or not to play a sound when a keyword appears in chat.
 
 
-_Keyword Settings_
+**_Keyword Settings_**
 
 `Keywords`: Comma separated list of keywords you want to be pinged for.
 
@@ -24,7 +25,7 @@ _Keyword Settings_
 `Automatically add nick to keywords`: Whether or not to use nick as a keyword when /nick'ed.
 
 
-_Preferences_
+**_Preferences_**
 
 `Ping for party chat`: Whether or not to check party chat messages for keywords.
 
