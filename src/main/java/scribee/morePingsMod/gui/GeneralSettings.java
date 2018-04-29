@@ -25,8 +25,8 @@ public class GeneralSettings extends CategoryEntry{
 		elements.addAll((new ConfigElement(ConfigHandler.config.getCategory(ConfigHandler.CATEGORY_GENERAL.toLowerCase()))).getChildElements());
 		
 		return new GuiConfig(this.owningScreen, elements, Reference.MODID, ConfigHandler.CATEGORY_GENERAL,
-				this.configElement.requiresWorldRestart() || this.owningScreen.allRequireWorldRestart,
-				this.configElement.requiresMcRestart() || this.owningScreen.allRequireMcRestart,
+				false,
+				false,
 				GuiConfig.getAbridgedConfigPath(ConfigHandler.config.toString()),
 				ConfigHandler.CATEGORY_GENERAL);
 	}

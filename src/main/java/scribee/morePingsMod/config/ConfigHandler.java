@@ -35,7 +35,7 @@ public class ConfigHandler {
 	private static boolean disabledLast = false;
 
 	/**
-	 * Creates config file, syncs variables and creates properties, and sets valid colors and styles
+	 * Sets up config file and sets valid colors and styles
 	 * 
 	 * @param event Passed from preInit in main mod class
 	 */
@@ -63,7 +63,9 @@ public class ConfigHandler {
 		};
 		validStyles = new String[] {
 				"None",
+				EnumChatFormatting.OBFUSCATED + "Obfuscated",
 				EnumChatFormatting.BOLD + "Bold",
+				EnumChatFormatting.STRIKETHROUGH + "Strikethrough",
 				EnumChatFormatting.UNDERLINE + "Underline", 
 				EnumChatFormatting.ITALIC + "Italic"
 		};
@@ -76,7 +78,7 @@ public class ConfigHandler {
 	 */
 	public static void syncConfig() {
 		/**
-		 * Keyword Options
+		 * Keyword Settings
 		 */
 		caseSensitive = config.getBoolean("Make keywords case sensitive",
 				CATEGORY_KEYWORDS,
@@ -149,6 +151,7 @@ public class ConfigHandler {
 	    if (config.hasChanged())
 	    	config.save();
 	    
+	    // sends messages stating the mod has been enabled or disabled by the config
 	    if (disableMod && !disabledLast) {
 	    	if (Minecraft.getMinecraft().thePlayer != null && ConfigHandler.sendStatusMessages) // will be null if config is changed from title screen
 	    		MorePingsMod.sendDisabledMessage("by config");

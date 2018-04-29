@@ -9,7 +9,7 @@ public class ScheduledCode {
 	public Runnable code;
 	public int ticks;
 	
-	public ScheduledCode (Runnable codeToRun, int ticksToWait) {
+	public ScheduledCode(Runnable codeToRun, int ticksToWait) {
 		code = codeToRun;
 		ticks = ticksToWait;
 		

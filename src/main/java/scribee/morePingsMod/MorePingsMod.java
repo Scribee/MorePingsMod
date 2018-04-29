@@ -46,8 +46,6 @@ public class MorePingsMod {
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
-		// used when testing to reset config each time
-		//event.getSuggestedConfigurationFile().delete();
 		
 		ConfigHandler.init(event);
 		ConfigHandler.syncConfig();
@@ -70,36 +68,32 @@ public class MorePingsMod {
 		 }
 	 }
 
-	 @SubscribeEvent(priority = EventPriority.LOW) // low priority improves compatibility with some other chat mods (since the change to how the formatted message is sent)
+	 @SubscribeEvent(priority = EventPriority.LOW) // low priority improves compatibility with some other chat mods
 	 public void onChatEvent(ClientChatReceivedEvent event) {
-		 // used to allow testing on singleplayer
-		 //onHypixel = true;
 		 if (!ConfigHandler.disableMod && onHypixel) {
+			 String message = event.message.getFormattedText();
 
-			 String message = event.message.getFormattedText(); // used for keeping the formatting for the final message
-			 String text = event.message.getUnformattedText(); // used for checking actual message content
+			 if (event.message.getUnformattedText().contains(":")) {
+				 Pattern keywordPattern;
 
-			 int startInd = message.indexOf(": "); // index of the beginning of the message content in the formatted string
-
-			 // if there is a colon in the message
-			 if (startInd != -1) {
 				 for (String keyword : keywordList) {
-					 String messageToCheck = ConfigHandler.caseSensitive ? message.substring(message.indexOf(": ")) : message.substring(message.indexOf(": ")).toLowerCase();
+					 if (ConfigHandler.caseSensitive)
+						 keywordPattern = Pattern.compile(".+?" + String.valueOf('\u00a7') + "(7|f): .*(" + String.valueOf('\u00a7') + "7|\\b)(" + keyword + "\\b)");
+					 else
+						 keywordPattern = Pattern.compile(".+?" + String.valueOf('\u00a7') + "(7|f): .*(" + String.valueOf('\u00a7') + "7|\\b)(" + keyword + "\\b)", Pattern.CASE_INSENSITIVE);
 
-					 Pattern keywordPattern = Pattern.compile("\\b" + keyword + "\\b");
-					 Matcher matcher = keywordPattern.matcher(messageToCheck);
-					 
+					 Matcher matcher = keywordPattern.matcher(message);
+
 					 /**
-					  * Check if any keywords appear in the content part of the message (don't want to be pinged every time Di-scri-minate chats).
-					  * Also make sure that the message isn't in a pm (from someone)/party chat/guild chat unless its enabled by the config.
+					  * Check if any keywords appear in the message.
+					  * Also make sure that the message isn't in a pm (from someone)/party chat/guild chat, unless its enabled by the config.
 					  * Messages to people are always ignored.
 					  */
-					 if (matcher.find() && (!text.substring(0, 5).equalsIgnoreCase("from ") || (ConfigHandler.privateChat && (text.substring(0, 5).equalsIgnoreCase("from ")))) && (!text.substring(0, 6).equalsIgnoreCase("party>") || (ConfigHandler.partyChat && (text.substring(0, 6).equalsIgnoreCase("party>")))) && (!text.substring(0, 6).equalsIgnoreCase("guild>") || (ConfigHandler.guildChat && (text.substring(0, 6).equalsIgnoreCase("guild>")))) && !text.substring(0, 3).equalsIgnoreCase("to ")) {						 
-						 int keywordInd = messageToCheck.indexOf(keyword) + startInd;
+					 if ((!message.substring(2, 7).equalsIgnoreCase("from ") || (ConfigHandler.privateChat && (message.substring(2, 7).equalsIgnoreCase("from ")))) && (!message.substring(2, 8).equalsIgnoreCase("party>") || (ConfigHandler.partyChat && (message.substring(2, 8).equalsIgnoreCase("party>")))) && (!message.substring(2, 8).equalsIgnoreCase("guild>") || (ConfigHandler.guildChat && (message.substring(2, 8).equalsIgnoreCase("guild>")))) && !message.substring(2, 5).equalsIgnoreCase("to ") && matcher.find()) {						 
+						 int keywordInd = matcher.start(3);
 						 // check if player is a non using the color code just before the colon
-						 if (message.substring(startInd - 1, startInd).equals("7")) {
-							 // matcher.replaceAll(getFormattedKeyword(keyword, true));
-							 event.message = new ChatComponentText(message.substring(0, startInd) +
+						 if (matcher.group(1).equals("7")) {
+							 event.message = new ChatComponentText(message.substring(0, keywordInd) +
 									 getFormattedKeyword(keyword, true) + 
 									 message.substring(keywordInd + keyword.length()));
 
@@ -107,7 +101,7 @@ public class MorePingsMod {
 								 Minecraft.getMinecraft().getSoundHandler().playSound(ding);
 						 }
 						 // check if player is a donator
-						 else if (message.substring(startInd - 1, startInd).equals("f")) { 
+						 else if (matcher.group(1).equals("f")) { 
 							 event.message = new ChatComponentText(message.substring(0, keywordInd) +
 									 getFormattedKeyword(keyword, false) + 
 									 message.substring(keywordInd + keyword.length()));
@@ -120,23 +114,24 @@ public class MorePingsMod {
 				 }
 			 }
 			 // check for nick set message to add nick as a keyword
-			 else if (message.contains("You are now nicked as ")) {
-				 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set(text.substring(22, text.length() - 1));
+			 if (message.length() > 27 && message.contains("You are now nicked as ")) {
+				 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set(message.substring(24, message.length() - 1));
 				 ConfigHandler.syncConfig();
 				 updateKeywords();
 
-				 sendModMessage("Nick added to keywords", "nicked as " + EnumChatFormatting.ITALIC + ConfigHandler.nick + EnumChatFormatting.RESET, 0, true);
+				 sendModMessage("Nick added to keywords", "nicked as " + EnumChatFormatting.ITALIC + ConfigHandler.nick + EnumChatFormatting.RESET, 2, true);
 			 }
 			 // check for nick reset message to remove nick from keywords
-			 else if (message.contains("Your nick has been reset!")) {
+			 else if (message.length() == 27 && message.substring(2).equals("Your nick has been reset!")) {
 				 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set("");
 				 ConfigHandler.syncConfig();
 				 updateKeywords();
 
-				 sendModMessage("Nick removed from keywords", "reset nick", 0, true);
+				 sendModMessage("Nick removed from keywords", "reset nick", 2, true);
 			 }
 		 }
 	 }
+
 
 	 @SubscribeEvent
 	 public void onPlayerLeaveEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
@@ -153,8 +148,15 @@ public class MorePingsMod {
     		ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Just started using mod", true, "Used to send an info message only the first time they join a world with the mod").set(false);
     		ConfigHandler.syncConfig();
     		
-    		IChatComponent welcome = new ChatComponentText(" \n" + EnumChatFormatting.BLUE + "-----" + EnumChatFormatting.AQUA + "Thanks for downloading the More Pings Mod!" + EnumChatFormatting.BLUE + "-----" + EnumChatFormatting.WHITE + "\n \nYou can change all mod settings with /morepings, or in the forge configuration GUI :D\n \n" + EnumChatFormatting.BLUE + "-----------------------------------------------\n ");
-    		new ScheduledCode(() -> Minecraft.getMinecraft().thePlayer.addChatMessage(welcome), 40);
+    		try {
+    			IChatComponent welcome = new ChatComponentText(" \n" + EnumChatFormatting.BLUE + "-----" + EnumChatFormatting.AQUA + "Thanks for downloading the More Pings Mod!" + EnumChatFormatting.BLUE + "-----" + EnumChatFormatting.WHITE + "\n \nYou can change all mod settings with /morepings, or in the forge configuration GUI :D\n \n" + EnumChatFormatting.BLUE + "-----------------------------------------------\n ");
+    			new ScheduledCode(() -> Minecraft.getMinecraft().thePlayer.addChatMessage(welcome), 60);
+    		}
+    		catch (NullPointerException e) {
+        		System.out.println("Player left while message pending");
+        		// reset to true to re-attempt to send the message on next join
+        		ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Just started using mod", true, "Used to send an info message only the first time they join a world with the mod").set(true);
+    		}
     	}
     }
     
@@ -164,6 +166,7 @@ public class MorePingsMod {
      * @param content Main content of the message
      * @param extraInfo Any information to be included in parentheses after content
      * @param delay Number of ticks to wait before sending message (set to 0 to send the message immediately)
+     * @param addPrefix Whether or not to prefix the message with "[More Pings] "
      */
     public static void sendModMessage(String content, String extraInfo, int delay, boolean addPrefix) {
     	IChatComponent message = addPrefix ? new ChatComponentText(EnumChatFormatting.WHITE + "[More Pings] ") : new ChatComponentText("");
@@ -227,8 +230,7 @@ public class MorePingsMod {
     }
     
     /**
-     * Checks whether the player is on hypixel, and sends mod status messages in chat
-     * based on whether they are.
+     * Checks whether the player is on hypixel, and sends different status messages in chat based on whether they are.
      */
     public static void checkServer() {
     	if (!Minecraft.getMinecraft().isSingleplayer()) {
@@ -236,24 +238,26 @@ public class MorePingsMod {
 				onHypixel = true;
 
 			// on hypixel, messages enabled, and didn't last join hypixel
-			if (!scheduled && onHypixel && ConfigHandler.sendStatusMessages && !lastIP.contains(".hypixel.net")) {
-				new ScheduledCode(() -> sendEnabledMessage("on hypixel"), 100);
+			if (!scheduled && ConfigHandler.sendStatusMessages && !lastIP.contains(".hypixel.net") && onHypixel) {
+				sendEnabledMessage("on hypixel");
 				
 				scheduled = true;
 			}
 			// not on hypixel, messages enabled, and not the same server as last joined
 			else if (!scheduled && ConfigHandler.sendStatusMessages && !lastIP.equals(FMLClientHandler.instance().getClient().getCurrentServerData().serverIP)) {
-				new ScheduledCode(() -> sendDisabledMessage("not on hypixel"), 100);
+				sendDisabledMessage("not on hypixel");
 				
 				scheduled = true;
 			}
 			
 			lastIP = FMLClientHandler.instance().getClient().getCurrentServerData().serverIP;
 		}
-		else if (ConfigHandler.sendStatusMessages && !scheduled) {
-			new ScheduledCode(() -> sendDisabledMessage("singleplayer mode"), 100);
+    	// in singleplayer mode, messages enabled and wasn't last in singleplayer
+		else if (!scheduled && ConfigHandler.sendStatusMessages && !lastIP.equals("singleplayer")) {
+			sendDisabledMessage("singleplayer mode");
 			
 			scheduled = true;
+			lastIP = "singleplayer";
 		}
     }
     
