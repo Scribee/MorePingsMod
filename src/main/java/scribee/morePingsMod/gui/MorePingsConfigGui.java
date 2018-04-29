@@ -26,7 +26,7 @@ public class MorePingsConfigGui extends GuiConfig {
 	private static List<IConfigElement> getConfigElements()
 	{
 		List<IConfigElement> categories = new ArrayList<IConfigElement>();
-		// probably not the best practice to use the forge example DummyCategoryElements, but I'm lazy XD
+		// probably not the best practice to use the forge example DummyCategoryElements, but I'm lazy and it works perfectly XD
 		categories.add(new DummyCategoryElement(ConfigHandler.CATEGORY_GENERAL, "gui.config.general", GeneralSettings.class));
 		categories.add(new DummyCategoryElement(ConfigHandler.CATEGORY_KEYWORDS, "gui.config.keywords", KeywordSettings.class));
 		categories.add(new DummyCategoryElement(ConfigHandler.CATEGORY_PREFERENCES, "gui.config.preferences", Preferences.class));
