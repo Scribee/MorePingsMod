@@ -9,8 +9,8 @@ import net.minecraftforge.fml.client.config.GuiConfig;
 import net.minecraftforge.fml.client.config.GuiConfigEntries;
 import net.minecraftforge.fml.client.config.GuiConfigEntries.CategoryEntry;
 import net.minecraftforge.fml.client.config.IConfigElement;
-import scribee.morePingsMod.ConfigHandler;
-import scribee.morePingsMod.Reference;
+import scribee.morePingsMod.config.ConfigHandler;
+import scribee.morePingsMod.util.Reference;
 
 public class KeywordSettings extends CategoryEntry{
 	public KeywordSettings(GuiConfig owningScreen, GuiConfigEntries owningEntryList, IConfigElement configElement) {

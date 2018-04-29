@@ -1,4 +1,4 @@
-package scribee.morePingsMod;
+package scribee.morePingsMod.util;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

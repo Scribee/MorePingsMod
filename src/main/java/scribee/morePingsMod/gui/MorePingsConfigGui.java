@@ -10,8 +10,8 @@ import net.minecraftforge.fml.client.config.DummyConfigElement.DummyCategoryElem
 import net.minecraftforge.fml.client.config.GuiConfig;
 import net.minecraftforge.fml.client.config.GuiConfigEntries.IConfigEntry;
 import net.minecraftforge.fml.client.config.IConfigElement;
-import scribee.morePingsMod.ConfigHandler;
-import scribee.morePingsMod.Reference;
+import scribee.morePingsMod.config.ConfigHandler;
+import scribee.morePingsMod.util.Reference;
 
 public class MorePingsConfigGui extends GuiConfig {
 	public MorePingsConfigGui(GuiScreen parentScreen) {

@@ -1,9 +1,10 @@
-package scribee.morePingsMod;
+package scribee.morePingsMod.config;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import scribee.morePingsMod.MorePingsMod;
 
 public class ConfigHandler {
 

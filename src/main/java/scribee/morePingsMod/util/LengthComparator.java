@@ -1,4 +1,4 @@
-package scribee.morePingsMod;
+package scribee.morePingsMod.util;
 
 import java.util.Comparator;
 

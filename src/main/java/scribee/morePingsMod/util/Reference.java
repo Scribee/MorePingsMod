@@ -1,4 +1,4 @@
-package scribee.morePingsMod;
+package scribee.morePingsMod.util;
 
 public class Reference {
 	public static final String MODID = "mp";
