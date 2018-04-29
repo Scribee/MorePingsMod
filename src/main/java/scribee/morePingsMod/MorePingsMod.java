@@ -3,6 +3,8 @@ package scribee.morePingsMod;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
@@ -69,7 +71,6 @@ public class MorePingsMod {
 		 }
 	 }
 
-	 // TODO switch over to using regex
 	 @SubscribeEvent(priority = EventPriority.LOW) // low priority improves compatibility with some other chat mods (since the change to how the formatted message is sent)
 	 public void onChatEvent(ClientChatReceivedEvent event) {
 		 // used to allow testing on singleplayer
@@ -83,18 +84,23 @@ public class MorePingsMod {
 
 			 // if there is a colon in the message
 			 if (startInd != -1) {
-				 for (String keyword : keywordList) { 
+				 for (String keyword : keywordList) {
 					 String messageToCheck = ConfigHandler.caseSensitive ? message.substring(message.indexOf(": ")) : message.substring(message.indexOf(": ")).toLowerCase();
-					 /** 
+
+					 Pattern keywordPattern = Pattern.compile("\\b" + keyword + "\\b");
+					 Matcher matcher = keywordPattern.matcher(messageToCheck);
+					 
+					 /**
 					  * Check if any keywords appear in the content part of the message (don't want to be pinged every time Di-scri-minate chats).
-					  * Also make sure that the message isn't in a pm(from someone)/party chat/guild chat unless its enabled by the config.
+					  * Also make sure that the message isn't in a pm (from someone)/party chat/guild chat unless its enabled by the config.
 					  * Messages to people are always ignored.
 					  */
-					 if (messageToCheck.contains(keyword) && (!text.substring(0, 5).equalsIgnoreCase("from ") || (ConfigHandler.privateChat && (text.substring(0, 5).equalsIgnoreCase("from ")))) && (!text.substring(0, 6).equalsIgnoreCase("party>") || (ConfigHandler.partyChat && (text.substring(0, 6).equalsIgnoreCase("party>")))) && (!text.substring(0, 6).equalsIgnoreCase("guild>") || (ConfigHandler.guildChat && (text.substring(0, 6).equalsIgnoreCase("guild>")))) && !text.substring(0, 3).equalsIgnoreCase("to ")) {						 
+					 if (matcher.find() && (!text.substring(0, 5).equalsIgnoreCase("from ") || (ConfigHandler.privateChat && (text.substring(0, 5).equalsIgnoreCase("from ")))) && (!text.substring(0, 6).equalsIgnoreCase("party>") || (ConfigHandler.partyChat && (text.substring(0, 6).equalsIgnoreCase("party>")))) && (!text.substring(0, 6).equalsIgnoreCase("guild>") || (ConfigHandler.guildChat && (text.substring(0, 6).equalsIgnoreCase("guild>")))) && !text.substring(0, 3).equalsIgnoreCase("to ")) {						 
 						 int keywordInd = messageToCheck.indexOf(keyword) + startInd;
 						 // check if player is a non using the color code just before the colon
-						 if (message.substring(startInd - 1, startInd).equals("7")) { 
-							 event.message = new ChatComponentText(message.substring(0, keywordInd) +
+						 if (message.substring(startInd - 1, startInd).equals("7")) {
+							 // matcher.replaceAll(getFormattedKeyword(keyword, true));
+							 event.message = new ChatComponentText(message.substring(0, startInd) +
 									 getFormattedKeyword(keyword, true) + 
 									 message.substring(keywordInd + keyword.length()));
 
@@ -219,8 +225,6 @@ public class MorePingsMod {
     	
     	if (ConfigHandler.useNickAsKeyword && !ConfigHandler.nick.equals(""))
     		keywordList.add(ConfigHandler.caseSensitive ? ConfigHandler.nick : ConfigHandler.nick.toLowerCase());
-    	
-    	Collections.sort(keywordList, new LengthComparator());
     }
     
     /**
