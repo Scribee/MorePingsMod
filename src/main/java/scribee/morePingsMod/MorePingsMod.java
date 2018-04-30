@@ -34,8 +34,7 @@ import scribee.morePingsMod.util.ScheduledCode;
 @Mod(modid = Reference.MODID, name = Reference.MOD_NAME, version = Reference.VERSION, guiFactory = Reference.GUI_FACTORY, clientSideOnly = true)
 public class MorePingsMod {
 	
-	// used to make sure the disable/enable message sends only the first time WorldEvent.Load is fired
-	private static boolean scheduled = false;
+	private static boolean scheduled = false; // used to make sure the disable/enable message sends only the first time WorldEvent.Load is fired
 	private static boolean onHypixel = false;
 	private static String lastIP = "none";
 	
@@ -46,7 +45,6 @@ public class MorePingsMod {
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
-		
 		ConfigHandler.init(event);
 		ConfigHandler.syncConfig();
 	}
@@ -62,13 +60,12 @@ public class MorePingsMod {
 	 @SubscribeEvent
 	 public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
 		 if (event.modID.equals(Reference.MODID)) {
-			 ConfigHandler.syncConfig();
-			 
+			 ConfigHandler.syncConfig(); 
 			 updateKeywords();
 		 }
 	 }
 
-	 @SubscribeEvent(priority = EventPriority.LOW) // low priority improves compatibility with some other chat mods
+	 @SubscribeEvent
 	 public void onChatEvent(ClientChatReceivedEvent event) {
 		 if (!ConfigHandler.disableMod && onHypixel) {
 			 String message = event.message.getFormattedText();
@@ -91,7 +88,7 @@ public class MorePingsMod {
 					  */
 					 if ((!message.substring(2, 7).equalsIgnoreCase("from ") || (ConfigHandler.privateChat && (message.substring(2, 7).equalsIgnoreCase("from ")))) && (!message.substring(2, 8).equalsIgnoreCase("party>") || (ConfigHandler.partyChat && (message.substring(2, 8).equalsIgnoreCase("party>")))) && (!message.substring(2, 8).equalsIgnoreCase("guild>") || (ConfigHandler.guildChat && (message.substring(2, 8).equalsIgnoreCase("guild>")))) && !message.substring(2, 5).equalsIgnoreCase("to ") && matcher.find()) {						 
 						 int keywordInd = matcher.start(3);
-						 // check if player is a non using the color code just before the colon
+						 // check if player is a non, using the color code just before the colon
 						 if (matcher.group(1).equals("7")) {
 							 event.message = new ChatComponentText(message.substring(0, keywordInd) +
 									 getFormattedKeyword(keyword, true) + 
@@ -131,7 +128,6 @@ public class MorePingsMod {
 			 }
 		 }
 	 }
-
 
 	 @SubscribeEvent
 	 public void onPlayerLeaveEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
@@ -252,7 +248,7 @@ public class MorePingsMod {
 			
 			lastIP = FMLClientHandler.instance().getClient().getCurrentServerData().serverIP;
 		}
-    	// in singleplayer mode, messages enabled and wasn't last in singleplayer
+    	// in singleplayer mode, messages enabled, and wasn't last in singleplayer
 		else if (!scheduled && ConfigHandler.sendStatusMessages && !lastIP.equals("singleplayer")) {
 			sendDisabledMessage("singleplayer mode");
 			
@@ -262,7 +258,7 @@ public class MorePingsMod {
     }
     
     /**
-     * Used to format keywords based on chosen preferences from the config file
+     * Used to format keywords with color and style specified in the config file
      * 
      * @param keyword Keyword to add styling and color to
      * @param isNon If the player is a non
@@ -271,7 +267,7 @@ public class MorePingsMod {
     public static String getFormattedKeyword(String keyword, boolean isNon) {
     	String ping = keyword + EnumChatFormatting.RESET;
     	
-    	ping += isNon ? EnumChatFormatting.GRAY : EnumChatFormatting.WHITE;
+    	ping += isNon ? EnumChatFormatting.GRAY : EnumChatFormatting.WHITE; // set the rest of the message to match the color it should be
 
     	ping = ConfigHandler.pingStyle.equals("None") ? ping : ConfigHandler.pingStyle.substring(0, 2) + ping;
     	ping = ConfigHandler.pingColor.equals("None") ? ping : ConfigHandler.pingColor.substring(0, 2) + ping;
