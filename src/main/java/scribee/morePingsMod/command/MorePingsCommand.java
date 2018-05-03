@@ -7,7 +7,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
 import scribee.morePingsMod.gui.MorePingsConfigGui;
 import scribee.morePingsMod.util.ScheduledCode;
 
@@ -42,6 +43,7 @@ public class MorePingsCommand extends CommandBase {
 	public void processCommand(ICommandSender sender, String[] args) throws CommandException {
 		if (args.length == 0)
 			new ScheduledCode(() -> Minecraft.getMinecraft().displayGuiScreen(new MorePingsConfigGui(Minecraft.getMinecraft().currentScreen)), 1);
+		else
+			sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + getCommandUsage(sender)));
 	}
-
 }
