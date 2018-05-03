@@ -75,9 +75,9 @@ public class MorePingsMod {
 
 				 for (String keyword : keywordList) {
 					 if (ConfigHandler.caseSensitive)
-						 keywordPattern = Pattern.compile(".+?" + String.valueOf('\u00a7') + "(7|f): .*(" + String.valueOf('\u00a7') + "7|\\b)(" + keyword + "\\b)");
+						 keywordPattern = Pattern.compile(".+?" + String.valueOf('\u00a7') + "(7|f): .*(" + String.valueOf('\u00a7') + "7|" + String.valueOf('\u00a7') + "r|\\b)(" + keyword + "\\b)");
 					 else
-						 keywordPattern = Pattern.compile(".+?" + String.valueOf('\u00a7') + "(7|f): .*(" + String.valueOf('\u00a7') + "7|\\b)(" + keyword + "\\b)", Pattern.CASE_INSENSITIVE);
+						 keywordPattern = Pattern.compile(".+?" + String.valueOf('\u00a7') + "(7|f): .*(" + String.valueOf('\u00a7') + "7|" + String.valueOf('\u00a7') + "r|\\b)(" + keyword + "\\b)", Pattern.CASE_INSENSITIVE);
 
 					 Matcher matcher = keywordPattern.matcher(message);
 
@@ -112,11 +112,13 @@ public class MorePingsMod {
 			 }
 			 // check for nick set message to add nick as a keyword
 			 if (message.length() > 27 && message.contains("You are now nicked as ")) {
-				 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set(message.substring(26, message.length() - 1));
+				 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set(message.substring(26, message.length() - 3));
 				 ConfigHandler.syncConfig();
 				 updateKeywords();
-
-				 sendModMessage("Nick added to keywords", "nicked as " + EnumChatFormatting.ITALIC + ConfigHandler.nick + EnumChatFormatting.RESET, 2, true);
+				 
+				 String style = ConfigHandler.pingStyle.equals("None") ? "" : ConfigHandler.pingStyle.substring(0, 2);
+				 String color = ConfigHandler.pingColor.equals("None") ? "" : ConfigHandler.pingColor.substring(0, 2);
+				 sendModMessage(EnumChatFormatting.GREEN + "Nick added to keywords", "nicked as " + color + style + ConfigHandler.nick + EnumChatFormatting.RESET, 2, true);
 			 }
 			 // check for nick reset message to remove nick from keywords
 			 else if (message.length() == 31 && message.contains("Your nick has been reset!")) {
@@ -124,7 +126,7 @@ public class MorePingsMod {
 				 ConfigHandler.syncConfig();
 				 updateKeywords();
 
-				 sendModMessage("Nick removed from keywords", "reset nick", 2, true);
+				 sendModMessage(EnumChatFormatting.GREEN + "Nick removed from keywords", "reset nick", 2, true);
 			 }
 		 }
 	 }
@@ -169,7 +171,7 @@ public class MorePingsMod {
     	message.appendText(content);
     	
     	if (!extraInfo.equals(""))
-    		message.appendText("(" + extraInfo + ")");
+    		message.appendText(" (" + extraInfo + EnumChatFormatting.WHITE + ")");
 
     	try {
     		if (delay > 0)
@@ -188,7 +190,7 @@ public class MorePingsMod {
      * @param reason Text to put in parentheses after message
      */
     public static void sendDisabledMessage(String reason) {
-    	String message = EnumChatFormatting.RED + "Mod Disabled " + EnumChatFormatting.WHITE;
+    	String message = EnumChatFormatting.RED + "Mod Disabled" + EnumChatFormatting.WHITE;
     	
     	sendModMessage(message, reason, 100, true);
     	
