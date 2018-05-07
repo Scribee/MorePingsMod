@@ -3,7 +3,7 @@ Pings you when customizable keywords show up in chat, by formatting the word to 
 
 The majority of the mod's settings can be customized by the command /morepings or via the forge configuration GUI. The different config settings and their descriptions are [listed below](https://github.com/Scribee/MorePingsMod-1.8.9#config-settings) :-)
 
-Mod Download: https://github.com/Scribee/MorePingsMod-1.8.9/releases/download/v1.2/MorePingsMod-1.8.9-1.2.jar
+**Download Link: https://github.com/Scribee/MorePingsMod-1.8.9/releases/download/v1.2.1/More.Pings.Mod-1.8.9-1.2.1.jar**
 
 _NOTE_: This mod does nothing in singleplayer and on servers other than Hypixel, as it's made to only deal with Hypixel chat formatting.
 
