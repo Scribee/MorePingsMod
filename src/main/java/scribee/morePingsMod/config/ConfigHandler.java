@@ -5,6 +5,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import scribee.morePingsMod.MorePingsMod;
+import scribee.morePingsMod.util.FormattingUtil;
 import scribee.morePingsMod.util.MessageUtil;
 
 public class ConfigHandler {
@@ -33,7 +34,6 @@ public class ConfigHandler {
 	
 	private static String[] validColors;
 	private static String[] validStyles;
-	private static String[] rainbowColors;
 
 	private static boolean disabledLast = false;
 
@@ -44,16 +44,6 @@ public class ConfigHandler {
 	 */
 	public static void init(FMLPreInitializationEvent event) {
 		config = new Configuration(event.getSuggestedConfigurationFile());
-		
-		rainbowColors = new String[] {
-				EnumChatFormatting.RED + "Red",
-				EnumChatFormatting.GOLD + "Gold",
-				EnumChatFormatting.YELLOW + "Yellow",
-				EnumChatFormatting.GREEN + "Green",
-				EnumChatFormatting.AQUA + "Aqua",
-				EnumChatFormatting.BLUE + "Blue",
-				EnumChatFormatting.LIGHT_PURPLE + "Pink"
-		};
 		
 		validColors = new String[] {
 				"None",
@@ -73,7 +63,7 @@ public class ConfigHandler {
 				EnumChatFormatting.LIGHT_PURPLE + "Light Purple",
 				EnumChatFormatting.YELLOW + "Yellow", 
 				EnumChatFormatting.WHITE + "White",
-				formatRainbow("Rainbow")
+				FormattingUtil.formatRainbow("Rainbow")
 		};
 		
 		validStyles = new String[] {
@@ -188,21 +178,5 @@ public class ConfigHandler {
 	    	
 	    	disabledLast = false;
 	    }
-	}
-	
-	public static String formatRainbow(String keyword) {
-		String newKeyword = "";
-		// Making it not actually random allows pingColor to save properly. As it was before, pingColor defaulted back to None every time Minecraft was reopened.
-		int pos = keyword.length() % rainbowColors.length;
-		
-		for (int i = 0; i < keyword.length(); i++) {
-			newKeyword += rainbowColors[pos % rainbowColors.length].substring(0, 2);
-			System.out.println(newKeyword);
-			pos++;
-			newKeyword += keyword.substring(i, i + 1);
-		}
-		
-		System.out.println(newKeyword);
-		return newKeyword;
 	}
 }
