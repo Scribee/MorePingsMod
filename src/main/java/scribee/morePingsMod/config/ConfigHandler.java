@@ -1,10 +1,13 @@
 package scribee.morePingsMod.config;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import scribee.morePingsMod.MorePingsMod;
+import scribee.morePingsMod.util.MessageUtil;
 
 public class ConfigHandler {
 
@@ -16,6 +19,7 @@ public class ConfigHandler {
 	public static final String CATEGORY_GENERAL = "General Settings";
 	
 	public static boolean useNickAsKeyword;
+	public static boolean useMMNameAsKeyword;
 	public static boolean caseSensitive;
 	public static boolean sendStatusMessages;
 	public static boolean disableMod;
@@ -31,6 +35,7 @@ public class ConfigHandler {
 	
 	private static String[] validColors;
 	private static String[] validStyles;
+	private static String[] rainbowColors;
 
 	private static boolean disabledLast = false;
 
@@ -41,6 +46,16 @@ public class ConfigHandler {
 	 */
 	public static void init(FMLPreInitializationEvent event) {
 		config = new Configuration(event.getSuggestedConfigurationFile());
+		
+		rainbowColors = new String[] {
+				EnumChatFormatting.RED + "Red",
+				EnumChatFormatting.GOLD + "Gold",
+				EnumChatFormatting.YELLOW + "Yellow",
+				EnumChatFormatting.GREEN + "Green",
+				EnumChatFormatting.AQUA + "Aqua",
+				EnumChatFormatting.BLUE + "Blue",
+				EnumChatFormatting.LIGHT_PURPLE + "Pink"
+		};
 		
 		validColors = new String[] {
 				"None",
@@ -59,8 +74,10 @@ public class ConfigHandler {
 				EnumChatFormatting.RED + "Red", 
 				EnumChatFormatting.LIGHT_PURPLE + "Light Purple",
 				EnumChatFormatting.YELLOW + "Yellow", 
-				EnumChatFormatting.WHITE + "White"
+				EnumChatFormatting.WHITE + "White",
+				formatRainbow("Rainbow")
 		};
+		
 		validStyles = new String[] {
 				"None",
 				EnumChatFormatting.OBFUSCATED + "Obfuscated",
@@ -92,6 +109,10 @@ public class ConfigHandler {
 	    		CATEGORY_KEYWORDS,
 	    		true,
 	    		"If true, when nicked your nickname will be used as a keyword");
+	    useMMNameAsKeyword = config.getBoolean("Automatically add MM name to keywords",
+	    		CATEGORY_KEYWORDS,
+	    		true,
+	    		"If true, when in a murder mystery assassins game your nickname will be used as a keyword");
 	    
 	    /**
 	     * Hidden
@@ -148,24 +169,41 @@ public class ConfigHandler {
 	    		"Styling to apply to keywords", 
 	    		validStyles);
 
-	    if (config.hasChanged())
+	    if (config.hasChanged()) {
 	    	config.save();
+	    }
 	    
 	    // sends messages stating the mod has been enabled or disabled by the config
 	    if (disableMod && !disabledLast) {
-	    	if (Minecraft.getMinecraft().thePlayer != null && ConfigHandler.sendStatusMessages) // will be null if config is changed from title screen
-	    		MorePingsMod.sendDisabledMessage("by config");
+	    	if (Minecraft.getMinecraft().thePlayer != null && ConfigHandler.sendStatusMessages) { // will be null if config is changed from title screen
+	    		MessageUtil.sendDisabledMessage("by config");
+	    	}
     		
 	    	disabledLast =  true;
 	    }
 	    else if (!disableMod && disabledLast) {
 	    	if (Minecraft.getMinecraft().thePlayer != null && ConfigHandler.sendStatusMessages) { // will be null if config is changed from title screen
-	    		MorePingsMod.sendEnabledMessage("by config");
+	    		MessageUtil.sendEnabledMessage("by config");
 	    		
-	    		MorePingsMod.checkServer(); // if re-enabled after joining a server, onHypixel was never updated, so check it now
+	    		MorePingsMod.checkServer(); // if the mod was re-enabled after joining a server, onHypixel was never updated, so check it now
 	    	}
 	    	
 	    	disabledLast = false;
 	    }
+	}
+	
+	public static String formatRainbow(String keyword) {
+		String newKeyword = "";
+		int pos = ThreadLocalRandom.current().nextInt(0, rainbowColors.length);
+		
+		for (int i = 0; i < keyword.length(); i++) {
+			newKeyword += rainbowColors[pos % rainbowColors.length].substring(0, 2);
+			System.out.println(newKeyword);
+			pos++;
+			newKeyword += keyword.substring(i, i + 1);
+		}
+		
+		System.out.println(newKeyword);
+		return newKeyword;
 	}
 }
