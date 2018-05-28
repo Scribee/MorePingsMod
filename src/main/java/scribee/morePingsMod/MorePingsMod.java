@@ -26,6 +26,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import scribee.morePingsMod.command.MorePingsCommand;
 import scribee.morePingsMod.config.ConfigHandler;
+import scribee.morePingsMod.util.FormattingUtil;
 import scribee.morePingsMod.util.MessageUtil;
 import scribee.morePingsMod.util.Reference;
 import scribee.morePingsMod.util.ScheduledCode;
@@ -96,7 +97,7 @@ public class MorePingsMod {
 						 // check if player is a non, using the color code just before the colon
 						 if (keywordMatcher.group(1).equals("7")) {
 							 event.message = new ChatComponentText(message.substring(0, keywordInd) +
-									 getFormattedKeyword(keyword, true) + 
+									 FormattingUtil.getFormattedKeyword(keyword, true) + 
 									 message.substring(keywordInd + keyword.length()));
 
 							 if (ConfigHandler.playDing)
@@ -105,7 +106,7 @@ public class MorePingsMod {
 						 // check if player is a donator
 						 else if (keywordMatcher.group(1).equals("f")) { 
 							 event.message = new ChatComponentText(message.substring(0, keywordInd) +
-									 getFormattedKeyword(keyword, false) + 
+									 FormattingUtil.getFormattedKeyword(keyword, false) + 
 									 message.substring(keywordInd + keyword.length()));
 
 							 if (ConfigHandler.playDing)
@@ -121,9 +122,7 @@ public class MorePingsMod {
 				 ConfigHandler.syncConfig();
 				 updateKeywords();
 				 
-				 String style = ConfigHandler.pingStyle.equals("None") ? "" : ConfigHandler.pingStyle.substring(0, 2);
-				 String color = ConfigHandler.pingColor.equals("None") ? "" : ConfigHandler.pingColor.substring(0, 2);
-				 MessageUtil.sendModMessage(EnumChatFormatting.GREEN + "Nick added to keywords", "nicked as " + color + style + ConfigHandler.nick + EnumChatFormatting.RESET, 2, true);
+				 MessageUtil.sendModMessage(EnumChatFormatting.GREEN + "Nick added to keywords", "nicked as " + FormattingUtil.getFormattedKeyword(ConfigHandler.nick, false), 2, true);
 			 }
 			 // check for nick reset message to remove nick from keywords
 			 else if (message.length() == 31 && message.contains("Your nick has been reset!")) {
@@ -140,9 +139,7 @@ public class MorePingsMod {
 					 mmName = mmNameMatcher.group(1);
 					 updateKeywords();
 					 
-					 String style = ConfigHandler.pingStyle.equals("None") ? "" : ConfigHandler.pingStyle.substring(0, 2);
-					 String color = ConfigHandler.pingColor.equals("None") ? "" : ConfigHandler.pingColor.substring(0, 2);
-					 MessageUtil.sendModMessage(EnumChatFormatting.GREEN + "Nickname for this game added to keywords", "nicked as " + color + style + mmName + EnumChatFormatting.RESET, 2, true);
+					 MessageUtil.sendModMessage(EnumChatFormatting.GREEN + "Nickname for this game added to keywords", "nicked as " + FormattingUtil.getFormattedKeyword(mmName, false), 2, true);
 				 }
 			 }
 		 }
@@ -155,8 +152,16 @@ public class MorePingsMod {
 
     @SubscribeEvent
     public void onWorldJoinEvent(WorldEvent.Load event) {
-    	if (!ConfigHandler.disableMod)
+    	// assume that if the player joins a new world, they aren't in the same mm game anymore
+    	if (!mmName.equals("")) {
+    		mmName = "";
+    		updateKeywords();
+    		MessageUtil.sendModMessage(EnumChatFormatting.GREEN + "Nickname from last game removed from keywords", "", 2, true);
+    	}
+    	
+    	if (!ConfigHandler.disableMod) {
     		checkServer();
+    	}
 
     	// send welcome message if this is the first time using the mod
     	if (ConfigHandler.firstJoin) {
@@ -176,7 +181,7 @@ public class MorePingsMod {
     }
     
     /**
-     * Populates keywordList using current player nick and murdery mystery nickname (if they exist and are set to be used by 
+     * Populates keywordList using current player nick and murder mystery nickname (if they exist and are set to be used by 
      * the config), and the keywords specified in the config file
      */
     public static void updateKeywords() {
@@ -191,7 +196,7 @@ public class MorePingsMod {
     	if (ConfigHandler.useNickAsKeyword && !ConfigHandler.nick.equals("")) {
     		keywordList.add(ConfigHandler.caseSensitive ? ConfigHandler.nick : ConfigHandler.nick.toLowerCase());
     	}
-    	if (ConfigHandler.useMMNameAsKeyword) {
+    	if (ConfigHandler.useMMNameAsKeyword && !mmName.equals("")) {
     		keywordList.add(ConfigHandler.caseSensitive ? mmName : mmName.toLowerCase());
     	}
     }
@@ -204,13 +209,13 @@ public class MorePingsMod {
 			if (FMLClientHandler.instance().getClient().getCurrentServerData().serverIP.contains(".hypixel.net"))
 				onHypixel = true;
 
-			// on hypixel, messages enabled, and didn't last join hypixel
+			// if on hypixel, messages enabled, and didn't last join hypixel
 			if (!scheduled && ConfigHandler.sendStatusMessages && !lastIP.contains(".hypixel.net") && onHypixel) {
 				MessageUtil.sendEnabledMessage("on hypixel");
 				
 				scheduled = true;
 			}
-			// not on hypixel, messages enabled, and not the same server as last joined
+			// if not on hypixel, messages enabled, and not the same server as last joined
 			else if (!scheduled && ConfigHandler.sendStatusMessages && !lastIP.equals(FMLClientHandler.instance().getClient().getCurrentServerData().serverIP)) {
 				MessageUtil.sendDisabledMessage("not on hypixel");
 				
@@ -219,34 +224,12 @@ public class MorePingsMod {
 			
 			lastIP = FMLClientHandler.instance().getClient().getCurrentServerData().serverIP;
 		}
-    	// in singleplayer mode, messages enabled, and wasn't last in singleplayer
+    	// if in singleplayer mode, messages enabled, and wasn't last in singleplayer
 		else if (!scheduled && ConfigHandler.sendStatusMessages && !lastIP.equals("singleplayer")) {
 			MessageUtil.sendDisabledMessage("singleplayer mode");
 			
 			scheduled = true;
 			lastIP = "singleplayer";
 		}
-    }
-    
-    /**
-     * Used to format keywords with color and style specified in the config file
-     * 
-     * @param keyword Keyword to add styling and color to
-     * @param isNon If the player is a non
-     * @return keyword with color and styling
-     */
-    public static String getFormattedKeyword(String ping, boolean isNon) {
-    	if (EnumChatFormatting.getTextWithoutFormattingCodes(ConfigHandler.pingColor).equals("Rainbow")) {
-    		ping = ConfigHandler.formatRainbow(ping);
-    	}
-    	else {
-    		ping = ConfigHandler.pingStyle.equals("None") ? ping : ConfigHandler.pingStyle.substring(0, 2) + ping;
-    		ping = ConfigHandler.pingColor.equals("None") ? ping : ConfigHandler.pingColor.substring(0, 2) + ping;
-    	}
-    	
-    	ping += EnumChatFormatting.RESET;
-    	ping += isNon ? EnumChatFormatting.GRAY : EnumChatFormatting.WHITE; // set the rest of the message to match the color it should be
-
-    	return ping;
     }
 }
