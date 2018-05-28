@@ -1,7 +1,5 @@
 package scribee.morePingsMod.config;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.config.Configuration;
@@ -194,7 +192,8 @@ public class ConfigHandler {
 	
 	public static String formatRainbow(String keyword) {
 		String newKeyword = "";
-		int pos = ThreadLocalRandom.current().nextInt(0, rainbowColors.length);
+		// Making it not actually random allows pingColor to save properly. As it was before, pingColor defaulted back to None every time Minecraft was reopened.
+		int pos = keyword.length() % rainbowColors.length;
 		
 		for (int i = 0; i < keyword.length(); i++) {
 			newKeyword += rainbowColors[pos % rainbowColors.length].substring(0, 2);
