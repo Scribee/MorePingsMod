@@ -23,6 +23,7 @@ public class MorePingsCommand extends CommandBase {
     public List<String> getCommandAliases() {
         List<String> aliases = new ArrayList<String>();
         aliases.add("mp");
+        aliases.add("moreping");
         aliases.add("morepingsmod");
         aliases.add("keywords");
         
@@ -41,9 +42,11 @@ public class MorePingsCommand extends CommandBase {
 
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) throws CommandException {
-		if (args.length == 0)
+		if (args.length == 0) {
 			new ScheduledCode(() -> Minecraft.getMinecraft().displayGuiScreen(new MorePingsConfigGui(Minecraft.getMinecraft().currentScreen)), 1);
-		else
+		}
+		else {
 			sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + getCommandUsage(sender)));
+		}
 	}
 }

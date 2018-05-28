@@ -13,10 +13,6 @@ public class ScheduledCode {
 		code = codeToRun;
 		ticks = ticksToWait;
 		
-		init();
-	}
-	
-	public void init() {
         MinecraftForge.EVENT_BUS.register(this);
 	}
 	
@@ -27,7 +23,8 @@ public class ScheduledCode {
             
             MinecraftForge.EVENT_BUS.unregister(this);
         }
-        else
+        else {
         	ticks--;
+        }
     }
 }

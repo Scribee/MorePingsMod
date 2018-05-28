@@ -2,7 +2,7 @@
 {
   "modid": "mp",
   "name": "More Pings Mod",
-  "description": "Highlights keywords by making them colorful and playing a ding sound when they show up in chat.\nAll settings are customizable via /morepings (or just /mp), or in the configuration file GUI :D\n\nNOTE: There may be some compatibility issues between this and other chat mods.",
+  "description": "Highlights keywords by making them colorful and playing a ding sound when they show up in chat.\nAll settings are customizable via /morepings (or just /mp), or in the configuration file GUI :D\n\nNOTE: There may be some compatibility issues between this mod and other mods that change how chat works.",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "https://github.com/Scribee/MorePingsMod-1.8.9",
