@@ -1,9 +1,9 @@
 # MorePingsMod 1.8.9
 Pings you when customizable keywords show up in chat by formatting the word to be fancy, and playing a ding noise.
 
-The majority of the mod's settings can be customized by the command /morepings or via the forge configuration GUI. The different config settings and their descriptions are [listed below](https://github.com/Scribee/MorePingsMod#config-settings) :-)
+The mod can be customized by a settings GUI, which is opened by the command /morepings or /mpings. The different config settings and their descriptions are [listed below](https://github.com/Scribee/MorePingsMod#config-settings) :-)
 
-**Download Link: https://github.com/Scribee/MorePingsMod/releases/download/v1.2.2/More.Pings.Mod-1.8.9-1.2.2.jar**
+**Download Link: https://github.com/Scribee/MorePingsMod/releases/download/v1.2.3/More.Pings.Mod-1.8.9-1.2.3.jar**
 
 _NOTE_: This mod does nothing in singleplayer and on servers other than Hypixel, as it's made to only deal with Hypixel chat formatting.
 
