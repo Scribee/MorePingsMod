@@ -121,8 +121,10 @@ public class MorePingsMod {
 				 ConfigHandler.config.get(ConfigHandler.CATEGORY_HIDDEN, "Current nick", "", "Automatically stores the name that the player is currently nicked as").set(message.substring(26, message.length() - 3));
 				 ConfigHandler.syncConfig();
 				 updateKeywords();
-				 
-				 MessageUtil.sendModMessage(EnumChatFormatting.GREEN + "Nick added to keywords", "nicked as " + FormattingUtil.getFormattedKeyword(ConfigHandler.nick, false), 2, true);
+
+				 if (ConfigHandler.sendStatusMessages) {
+					 MessageUtil.sendModMessage(EnumChatFormatting.GREEN + "Nick added to keywords", "nicked as " + FormattingUtil.getFormattedKeyword(ConfigHandler.nick, false), 2, true);
+				 }
 			 }
 			 // check for nick reset message to remove nick from keywords
 			 else if (message.length() == 31 && message.contains("Your nick has been reset!")) {
@@ -130,7 +132,9 @@ public class MorePingsMod {
 				 ConfigHandler.syncConfig();
 				 updateKeywords();
 
-				 MessageUtil.sendModMessage(EnumChatFormatting.GREEN + "Nick removed from keywords", "reset nick", 2, true);
+				 if (ConfigHandler.sendStatusMessages) {
+					 MessageUtil.sendModMessage(EnumChatFormatting.GREEN + "Nick removed from keywords", "reset nick", 2, true);
+				 }
 			 }
 			 else {
 				 Matcher mmNameMatcher = mmNamePattern.matcher(message);
@@ -139,7 +143,9 @@ public class MorePingsMod {
 					 mmName = mmNameMatcher.group(1);
 					 updateKeywords();
 					 
-					 MessageUtil.sendModMessage(EnumChatFormatting.GREEN + "Nickname for this game added to keywords", "nicked as " + FormattingUtil.getFormattedKeyword(mmName, false), 2, true);
+					 if (ConfigHandler.sendStatusMessages) {
+						 MessageUtil.sendModMessage(EnumChatFormatting.GREEN + "Nickname for this game added to keywords", "nicked as " + FormattingUtil.getFormattedKeyword(mmName, false), 2, true);
+					 }
 				 }
 			 }
 		 }
@@ -156,7 +162,9 @@ public class MorePingsMod {
     	if (!mmName.equals("")) {
     		mmName = "";
     		updateKeywords();
-    		MessageUtil.sendModMessage(EnumChatFormatting.GREEN + "Nickname from last game removed from keywords", "", 2, true);
+			if (ConfigHandler.sendStatusMessages) {
+				MessageUtil.sendModMessage(EnumChatFormatting.GREEN + "Nickname from last game removed from keywords", "", 2, true);
+			}
     	}
     	
     	if (!ConfigHandler.disableMod) {
@@ -206,8 +214,9 @@ public class MorePingsMod {
      */
     public static void checkServer() {
     	if (!Minecraft.getMinecraft().isSingleplayer()) {
-			if (FMLClientHandler.instance().getClient().getCurrentServerData().serverIP.contains(".hypixel.net"))
+			if (FMLClientHandler.instance().getClient().getCurrentServerData().serverIP.contains(".hypixel.net")) {
 				onHypixel = true;
+			}
 
 			// if on hypixel, messages enabled, and didn't last join hypixel
 			if (!scheduled && ConfigHandler.sendStatusMessages && !lastIP.contains(".hypixel.net") && onHypixel) {
