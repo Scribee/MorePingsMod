@@ -22,10 +22,9 @@ public class MorePingsCommand extends CommandBase {
 	@Override
     public List<String> getCommandAliases() {
         List<String> aliases = new ArrayList<String>();
-        aliases.add("mp");
+        aliases.add("mpings");
         aliases.add("moreping");
         aliases.add("morepingsmod");
-        aliases.add("keywords");
         
         return aliases;
     }
