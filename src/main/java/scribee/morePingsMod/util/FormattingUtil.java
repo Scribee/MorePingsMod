@@ -50,12 +50,10 @@ public class FormattingUtil {
 		
 		for (int i = 0; i < keyword.length(); i++) {
 			newKeyword += rainbowColors[pos % rainbowColors.length].substring(0, 2);
-			System.out.println(newKeyword);
 			pos++;
 			newKeyword += keyword.substring(i, i + 1);
 		}
 		
-		System.out.println(newKeyword);
 		return newKeyword;
 	}
 }
